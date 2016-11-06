@@ -1,10 +1,10 @@
-# JGit / Cassandra
+# Cassandra Object Database Storage Backend for JGit
 
 ![JGit-Cassandra Logo](jgit-cassandra-logo.png)
 
 ## Overview
 
-JGit/Cassandra is a storage backend extension for the [Eclipse JGit](https://eclipse.dev/jgit/)
+JGit-Cassandra is a storage backend extension for the [Eclipse JGit](https://eclipse.dev/jgit/)
 project. The primary aim of this project is to implement a JGit `DfsObjectDatabase` (Distributed
 File System Object Database) on top of **Apache Cassandra**.
 
@@ -22,9 +22,14 @@ providing high availability and massive scalability for Git object storage.
 
 ## Getting Started
 
-*(Instructions for building the project with Maven/Gradle, configuring the Cassandra connection
-points, and integrating the DfsRepository into a JGit application will be added here as the
-implementation progresses.)*
+Have an instance of Cassandra running or use ccm Cassandra Cluster
+Manager https://github.com/pcmanus/ccm.
+
+- Create one Cassandra instance with the latest version: `ccm create jgit -v 3.0.9`
+- Populate 1 instance: `ccm populate -n 1`
+- Start instance `ccm start`
+
+To access cqlsh via `ccm node1 cqlsh`
 
 ## Authors and Maintainers
 
