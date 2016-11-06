@@ -1,3 +1,11 @@
+<<<<<<< PATCH SET (ef75fd511b21472eb3d1171590c72ba34b3a7855 WIP - add basic cassandra unit test.)
+### JGIT - Cassandra
+JGit with Apache Cassandra database as storage backend. 
+  
+
+
+
+=======
 # JGit / Cassandra
 
 ![JGit-Cassandra Logo](jgit-cassandra-logo.png)
@@ -22,9 +30,14 @@ providing high availability and massive scalability for Git object storage.
 
 ## Getting Started
 
-*(Instructions for building the project with Maven/Gradle, configuring the Cassandra connection
-points, and integrating the DfsRepository into a JGit application will be added here as the
-implementation progresses.)*
+Have an instance of Cassandra running or use ccm Cassandra Cluster
+Manager https://github.com/pcmanus/ccm.
+
+- Create one Cassandra instance with the latest version: `ccm create jgit -v 3.0.9`
+- Populate 1 instance: `ccm populate -n 1`
+- Start instance `ccm start`
+
+To access cqlsh via `ccm node1 cqlsh`
 
 ## Authors and Maintainers
 
