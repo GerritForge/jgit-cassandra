@@ -3,4 +3,7 @@ CREATE KEYSPACE git_store WITH REPLICATION = { 'class' : 'SimpleStrategy', 'repl
 CREATE TABLE git_store.pack( id UUID, offset DOUBLE, value BLOB, PRIMARY KEY ((id,offset)));
 
 CREATE TABLE git_store.pack_list( id TEXT, packs FROZEN<SET<FROZEN<TUPLE<UUID, double>>>>, PRIMARY KEY (id));
+<<<<<<< PATCH SET (46ed643d1ff2e9183c137a8af560bbc609c46a8d WIP - add basic cassandra unit test.)
+=======
 CREATE TABLE git_store.pack_list( id TEXT, packs FROZEN<SET<FROZEN<TUPLE<UUID, double>>>>, PRIMARY KEY (id));
+>>>>>>> BASE      (0dd8a600f8e20f714ad41ac81efaf78d6bcc361d Add data model for pack C* tables.)
