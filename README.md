@@ -1,3 +1,19 @@
+<<<<<<< PATCH SET (ef75fd511b21472eb3d1171590c72ba34b3a7855 WIP - add basic cassandra unit test.)
+### JGIT - Cassandra
+JGit with Apache Cassandra database as storage backend. 
+  
+Have an instance of Cassandra running or use ccm Cassandra Cluster 
+Manager https://github.com/pcmanus/ccm.
+
+Create one cassandra instance with latest version 
+`ccm create jgit -v 3.0.9`
+populate 1 instance `ccm populate -n 1`
+start instance `ccm start`
+
+To access cqlsh via `ccm node1 cqlsh`
+
+
+=======
 # JGit / Cassandra
 
 ![JGit-Cassandra Logo](jgit-cassandra-logo.png)
@@ -43,3 +59,4 @@ This project is licensed under the **Business Source License (BSL) 1.1**.
 
 Please refer to the [`LICENSE`](LICENSE) file in the root of this repository for the full license text and
 specific terms regarding usage and eventual conversion to an open-source license.
+>>>>>>> BASE      (8a2e791dba95cf43d65ccc319195256257dbafae Initial README, LICENSE and project skeleton)
