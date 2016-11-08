@@ -1,0 +1,249 @@
+package org.eclipse.jgit.internal.storage.dfs;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+
+import org.eclipse.jgit.internal.storage.pack.PackExt;
+
+import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.datastax.driver.core.utils.UUIDs;
+import com.google.gson.Gson;
+
+public class CassandraObjDatabase extends DfsObjDatabase {
+    
+    final Session session;
+    final PreparedStatement readPack;
+    final PreparedStatement insertPack;
+    final PreparedStatement readPackList;
+    final PreparedStatement updatePackList;
+    
+    final Gson gson = new Gson();
+    
+    protected CassandraObjDatabase(Session session, DfsRepository repository,
+                    DfsReaderOptions options) {
+        super(repository, options);
+        this.session = session;
+        readPack = session.prepare(
+                        QueryBuilder
+                                        .select("value")
+                                        .from("git_store", "packs")
+                                        .where(QueryBuilder.eq("id", QueryBuilder.bindMarker()))
+                                        .and(QueryBuilder.eq("offset", QueryBuilder.bindMarker()))
+                                        .toString());
+        
+        insertPack = session.prepare(
+                        QueryBuilder
+                                        .insertInto("git_store", "packs")
+                                        .value("id", QueryBuilder.bindMarker())
+                                        .value("offset", QueryBuilder.bindMarker())
+                                        .value("value", QueryBuilder.bindMarker())
+                                        .toString());
+        
+        readPackList = session.prepare(
+                        QueryBuilder
+                                        .select("packs")
+                                        .from("git_store", "pack_list")
+                                        .where(QueryBuilder.eq("id", QueryBuilder.bindMarker()))
+                                        .toString());
+        
+        updatePackList = session.prepare(
+                        QueryBuilder.insertInto("git_store", "pack_list")
+                                        .value("id", QueryBuilder.bindMarker())
+                                        .value("packs", QueryBuilder.bindMarker())
+                                        .toString());
+        
+    }
+    
+    private static class CassandraPack extends DfsPackDescription {
+        
+        public CassandraPack(String name, DfsRepositoryDescription repoDesc) {
+            super(repoDesc, name);
+        }
+    }
+    
+    @Override
+    protected DfsPackDescription newPack(PackSource packSource) throws IOException {
+        UUID id = UUIDs.timeBased();
+        DfsPackDescription desc = new CassandraPack(id.toString(), getRepository().getDescription());
+        return desc.setPackSource(packSource);
+    }
+    
+    @Override
+    protected void commitPackImpl(Collection<DfsPackDescription> desc, Collection<DfsPackDescription> replace) throws IOException {
+        List<String> descJson = new ArrayList<>(desc.size());
+        for (DfsPackDescription dfsPackDescription : desc) {
+            descJson.add(gson.toJson(dfsPackDescription));
+        }
+        session.execute(updatePackList.bind(getRepository().getDescription().getRepositoryName(), descJson));
+        
+        if (replace != null) {
+            //TODO replace pack descriptions
+        }
+    }
+    
+    @Override
+    protected List<DfsPackDescription> listPacks() throws IOException {
+        ResultSet packListRst = session.execute(readPackList.bind(getRepository().getDescription().getRepositoryName()));
+        Row row = packListRst.one();
+        List<String> listJsonPacks = row.getList("packs", String.class);
+        List<DfsPackDescription> packList = new ArrayList<>(listJsonPacks.size());
+        for (String packDescriptionJson : listJsonPacks) {
+            DfsPackDescription dfsPackDescription = gson.fromJson(packDescriptionJson, DfsPackDescription.class);
+            packList.add(dfsPackDescription);
+        }
+        return packList;
+    }
+    
+    @Override
+    protected ReadableChannel openFile(DfsPackDescription dfsPackDescription, PackExt packExt) throws FileNotFoundException, IOException {
+        
+        return new CassandraPackReader(dfsPackDescription.getFileSize(packExt), dfsPackDescription, packExt);
+    }
+    
+    private class CassandraPackReader implements ReadableChannel {
+        
+        private long size;
+        private DfsPackDescription dfsPackDescription;
+        private PackExt packExt;
+        private long position;
+        
+        public CassandraPackReader(long size, DfsPackDescription dfsPackDescription, PackExt packExt) {
+            this.size = size;
+            this.dfsPackDescription = dfsPackDescription;
+            this.packExt = packExt;
+        }
+        
+        @Override
+        public long position() throws IOException {
+            return position;
+        }
+        
+        @Override
+        public void position(long l) throws IOException {
+            //TODO check that position is set as a multiple of BlockSize
+        }
+        
+        @Override
+        public long size() throws IOException {
+            return size;
+        }
+        
+        @Override
+        public int blockSize() {
+            return DfsBlockCache.getInstance().getBlockSize();
+        }
+        
+        @Override
+        public void setReadAheadBytes(int i) throws IOException {
+            //No read ahead bytes
+        }
+        
+        @Override
+        public int read(ByteBuffer dst) throws IOException {
+            long n = Math.min(dst.remaining(), size - position);
+            if (n == 0) {
+                return -1;
+            }
+            long offset = position + blockSize();
+            
+            ResultSet rst = session.execute(readPack.bind(dfsPackDescription.getFileName(packExt), offset));
+            if (rst.isExhausted()) {
+                return -1;
+            }
+            Row row = rst.one();
+            byte[] value = row.getBytes("value").array();
+            dst.put(value);
+            position += value.length;
+            return value.length;
+        }
+        
+        @Override
+        public boolean isOpen() {
+            return false;
+        }
+        
+        @Override
+        public void close() throws IOException {
+            
+        }
+    }
+    
+    @Override
+    protected DfsOutputStream writeFile(final DfsPackDescription dfsPackDescription, final PackExt packExt) throws IOException {
+        return new Out(){
+            @Override
+            public void flush() {
+                String name = dfsPackDescription.getFileName(packExt);
+                ByteArrayInputStream bis = new ByteArrayInputStream(getData());
+                Byte[] value = new Byte[blockSize()];
+                int offset = 0;
+                /*while (bis.read(value, offset, blockSize())){
+                    
+                }*/
+//                if (bis){
+//                    long pos = 0;
+//                    while(pos < dfsPackDescription.getFileSize(packExt)){
+//                        long offset = pos + blockSize();
+//                        session.execute(insertPack.bind(name, offset, data[]));
+//                    }
+//                }
+            }
+        };
+    }
+    
+    //hold in memoery all writter object until a flush is called.
+    // similar to jgit org.eclipse.jgit.internal.storage.dfs.InMemoryRepository.Out
+    private abstract static class Out extends DfsOutputStream {
+        private final ByteArrayOutputStream dst = new ByteArrayOutputStream();
+    
+        private byte[] data;
+    
+        @Override
+        public void write(byte[] buf, int off, int len) {
+            data = null;
+            dst.write(buf, off, len);
+        }
+    
+        @Override
+        public int read(long position, ByteBuffer buf) {
+            byte[] d = getData();
+            int n = Math.min(buf.remaining(), d.length - (int) position);
+            if (n == 0)
+                return -1;
+            buf.put(d, (int) position, n);
+            return n;
+        }
+        
+    
+        byte[] getData() {
+            if (data == null)
+                data = dst.toByteArray();
+            return data;
+        }
+    
+        @Override
+        public abstract void flush();
+    
+        @Override
+        public void close() {
+            flush();
+        }
+    
+    }
+    
+    @Override
+    protected void rollbackPack(Collection<DfsPackDescription> collection) {
+        // do nothing
+    }
+}

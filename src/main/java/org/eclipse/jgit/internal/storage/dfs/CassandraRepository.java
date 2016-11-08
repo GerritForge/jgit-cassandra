@@ -1,11 +1,11 @@
-package com.gerritforge.jgit.storage;
+package org.eclipse.jgit.internal.storage.dfs;
 
 import java.io.IOException;
 
-import org.eclipse.jgit.internal.storage.dfs.*;
 import org.eclipse.jgit.lib.RefDatabase;
 
 import com.datastax.driver.core.Cluster;
+import com.google.gson.Gson;
 
 public class CassandraRepository extends DfsRepository {
     
@@ -19,6 +19,7 @@ public class CassandraRepository extends DfsRepository {
     
     private final Cluster cluster;
     private final CassandraObjDatabase cassandraObjDatabase;
+    
 
     public CassandraRepository(Cluster cluster, DfsRepositoryDescription repoDesc){
         this(cluster, new Builder().setRepositoryDescription(repoDesc));

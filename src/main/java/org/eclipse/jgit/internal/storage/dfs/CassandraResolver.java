@@ -1,4 +1,4 @@
-package com.gerritforge.jgit.storage;
+package org.eclipse.jgit.internal.storage.dfs;
 
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Repository;
