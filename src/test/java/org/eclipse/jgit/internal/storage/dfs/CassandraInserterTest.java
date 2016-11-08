@@ -17,6 +17,8 @@ import com.datastax.driver.core.Cluster;
 import java.io.IOException;
 import org.cassandraunit.CassandraCQLUnit;
 import org.cassandraunit.dataset.cql.ClassPathCQLDataSet;
+import org.eclipse.jgit.internal.storage.dfs.CassandraObjDatabase;
+import org.eclipse.jgit.internal.storage.dfs.CassandraRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectInserter;

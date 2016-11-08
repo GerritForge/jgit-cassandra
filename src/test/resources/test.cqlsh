@@ -1,3 +1,4 @@
-CREATE TABLE git_store.pack( id UUID, offset DOUBLE, value BLOB, PRIMARY KEY ((id,offset)));
+CREATE TABLE git_store.packs( id TEXT, offset BIGINT, value BLOB, PRIMARY KEY ((id,offset)));
 
-CREATE TABLE git_store.pack_list( id TEXT, packs FROZEN<SET<FROZEN<TUPLE<UUID, double>>>>, PRIMARY KEY (id));
+CREATE TABLE git_store.pack_list( id TEXT, packs LIST<STRING>, PRIMARY KEY (id));
+
