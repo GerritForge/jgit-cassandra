@@ -7,6 +7,7 @@ import com.datastax.driver.core.Session;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.utils.UUIDs;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -16,14 +17,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-
-import org.eclipse.jgit.internal.storage.dfs.DfsBlockCache;
 import org.eclipse.jgit.internal.storage.dfs.DfsObjDatabase;
 import org.eclipse.jgit.internal.storage.dfs.DfsOutputStream;
 import org.eclipse.jgit.internal.storage.dfs.DfsPackDescription;
 import org.eclipse.jgit.internal.storage.dfs.DfsReaderOptions;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.ReadableChannel;
 import org.eclipse.jgit.internal.storage.pack.PackExt;
 
@@ -31,17 +29,21 @@ public class CassandraObjDatabase extends DfsObjDatabase {
 
   final Session session;
   final int blockSize;
-    finalPreparedStatement readPack;
+  finalPreparedStatement readPack;
   final PreparedStatement insertPack;
   final PreparedStatement readPackList;
   final PreparedStatement updatePackList;
 
-  final Gson gson = new Gson();
+  final Gson gson =
+      (new GsonBuilder())
+          .registerTypeHierarchyAdapter(CassandraPack.class, new CassandraPackTypeAdapter())
+          .create();
 
   protected CassandraObjDatabase(
       Session session, DfsRepository repository, DfsReaderOptions options, int blockSize) {
     super(repository, options);
-    this.session = session;this.blockSize = blockSize;
+    this.session = session;
+    this.blockSize = blockSize;
     readPack =
         session.prepare(
             QueryBuilder.select("value")
@@ -73,14 +75,8 @@ public class CassandraObjDatabase extends DfsObjDatabase {
                 .toString());
   }
 
-  private static class CassandraPack extends DfsPackDescription {
-
-    public CassandraPack(String name, DfsRepositoryDescription repoDesc) {
-      super(repoDesc, name);
-    }}
-
-    public int getBlockSize() {
-        return blockSize;
+  public int getBlockSize() {
+    return blockSize;
   }
 
   @Override
@@ -108,17 +104,20 @@ public class CassandraObjDatabase extends DfsObjDatabase {
 
   @Override
   protected List<DfsPackDescription> listPacks() throws IOException {
-    List<DfsPackDescription> packList = new ArrayList<>();ResultSet packListRst =
-        session.execute(readPackList.bind(getRepository().getDescription().getRepositoryName()));if (!packListRst.isExhausted()) {
-    Row row = packListRst.one();
-    List<String> listJsonPacks = row.getList("packs", String.class);
+    List<DfsPackDescription> packList = new ArrayList<>();
+    ResultSet packListRst =
+        session.execute(readPackList.bind(getRepository().getDescription().getRepositoryName()));
+    if (!packListRst.isExhausted()) {
+      Row row = packListRst.one();
+      List<String> listJsonPacks = row.getList("packs", String.class);
 
-    for (String packDescriptionJson : listJsonPacks) {
-      DfsPackDescription dfsPackDescription =
-          gson.fromJson(packDescriptionJson, DfsPackDescription.class);
-      packList.add(dfsPackDescription);
+      for (String packDescriptionJson : listJsonPacks) {
+        DfsPackDescription dfsPackDescription =
+            gson.fromJson(packDescriptionJson, CassandraPack.class);
+        packList.add(dfsPackDescription);
+      }
     }
-    }return packList;
+    return packList;
   }
 
   @Override
@@ -237,13 +236,17 @@ public class CassandraObjDatabase extends DfsObjDatabase {
     public int read(long position, ByteBuffer buf) {
       byte[] d = getData();
       int n = Math.min(buf.remaining(), d.length - (int) position);
-      if (n == 0) return -1;
+      if (n == 0) {
+        return -1;
+      }
       buf.put(d, (int) position, n);
       return n;
     }
 
     byte[] getData() {
-      if (data == null) data = dst.toByteArray();
+      if (data == null) {
+        data = dst.toByteArray();
+      }
       return data;
     }
 
