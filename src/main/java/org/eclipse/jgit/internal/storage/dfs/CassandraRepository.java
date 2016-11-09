@@ -1,13 +1,7 @@
-package com.gerritforge.jgit.storage.cassandra;
+package org.eclipse.jgit.internal.storage.dfs;
 
 import java.io.IOException;
 
-import org.eclipse.jgit.internal.storage.dfs.DfsBlockCacheConfig;
-import org.eclipse.jgit.internal.storage.dfs.DfsObjDatabase;
-import org.eclipse.jgit.internal.storage.dfs.DfsReaderOptions;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryBuilder;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.lib.RefDatabase;
 
 import com.datastax.driver.core.Cluster;

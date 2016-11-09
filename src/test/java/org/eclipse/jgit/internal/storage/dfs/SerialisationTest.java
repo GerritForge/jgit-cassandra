@@ -1,7 +1,5 @@
-package com.gerritforge.jgit.storage.cassandra;
+package org.eclipse.jgit.internal.storage.dfs;
 
-import org.eclipse.jgit.internal.storage.dfs.DfsPackDescription;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.pack.PackExt;
 import org.junit.Test;
 

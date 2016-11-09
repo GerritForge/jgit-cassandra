@@ -1,17 +1,13 @@
-package com.gerritforge.jgit.storage.cassandra;
+package org.eclipse.jgit.internal.storage.dfs;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.zip.Deflater;
 
 import org.cassandraunit.CassandraCQLUnit;
 import org.cassandraunit.dataset.cql.ClassPathCQLDataSet;
-import org.eclipse.jgit.internal.storage.dfs.DfsBlockCache;
-import org.eclipse.jgit.internal.storage.dfs.DfsBlockCacheConfig;
-import org.eclipse.jgit.internal.storage.dfs.DfsInserter;
-import org.eclipse.jgit.internal.storage.dfs.DfsPackDescription;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.pack.PackExt;
 import org.eclipse.jgit.junit.JGitTestUtil;
 import org.eclipse.jgit.junit.TestRng;
@@ -22,6 +18,7 @@ import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.util.IO;
 import org.eclipse.jgit.util.RawParseUtils;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,7 +54,7 @@ public class CassandraInserterTest {
         try (ObjectInserter ins = db.newObjectInserter()) {
             ins.insert(Constants.OBJ_BLOB, Constants.encode("foo"));
             ins.insert(Constants.OBJ_BLOB, Constants.encode("bar"));
-            assertEquals(0, ((CassandraObjDatabase) db.getObjectDatabase()).listPacks().size());
+            Assert.assertEquals(0, ((CassandraObjDatabase) db.getObjectDatabase()).listPacks().size());
         }
         assertEquals(0, ((CassandraObjDatabase) db.getObjectDatabase()).listPacks().size());
     }
@@ -93,7 +90,7 @@ public class CassandraInserterTest {
         
         byte[] data = new TestRng(JGitTestUtil.getName()).nextBytes(8192);
         DfsInserter ins = (DfsInserter) db.newObjectInserter();
-        //        ins.setCompressionLevel(Deflater.NO_COMPRESSION);
+        ins.setCompressionLevel(Deflater.NO_COMPRESSION);
         ObjectId id1 = ins.insert(Constants.OBJ_BLOB, data);
         assertEquals(0, ((CassandraObjDatabase) db.getObjectDatabase()).listPacks().size());
         
