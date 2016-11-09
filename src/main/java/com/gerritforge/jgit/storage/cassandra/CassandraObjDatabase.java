@@ -1,3 +1,14 @@
+// Copyright (C) 2026 GerritForge, Inc.
+//
+// Licensed under the BSL 1.1 (the "License");
+// you may not use this file except in compliance with the License.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.gerritforge.jgit.storage.cassandra;
 
 import com.datastax.driver.core.PreparedStatement;
@@ -29,7 +40,7 @@ public class CassandraObjDatabase extends DfsObjDatabase {
 
   final Session session;
   final int blockSize;
-  finalPreparedStatement readPack;
+  final PreparedStatement readPack;
   final PreparedStatement insertPack;
   final PreparedStatement readPackList;
   final PreparedStatement updatePackList;
@@ -110,7 +121,6 @@ public class CassandraObjDatabase extends DfsObjDatabase {
     if (!packListRst.isExhausted()) {
       Row row = packListRst.one();
       List<String> listJsonPacks = row.getList("packs", String.class);
-
       for (String packDescriptionJson : listJsonPacks) {
         DfsPackDescription dfsPackDescription =
             gson.fromJson(packDescriptionJson, CassandraPack.class);
@@ -203,25 +213,22 @@ public class CassandraObjDatabase extends DfsObjDatabase {
       public void flush() {
         String name = dfsPackDescription.getFileName(packExt);
         ByteArrayInputStream bis = new ByteArrayInputStream(getData());
-        Byte[] value = new Byte[blockSize()];
-        int offset = 0;
-        /*while (bis.read(value, offset, blockSize())){
-
-        }*/
-        //                if (bis){
-        //                    long pos = 0;
-        //                    while(pos < dfsPackDescription.getFileSize(packExt)){
-        //                        long offset = pos + blockSize();
-        //                        session.execute(insertPack.bind(name, offset, data[]));
-        //                    }
-        //                }
+        int size = Math.min(blockSize(), bis.available());
+        byte[] value = new byte[size];
+        long offset = 0;
+        while (size > 0 && bis.read(value, 0, size) != -1) {
+          offset = offset + blockSize;
+          session.execute(insertPack.bind(name, offset, ByteBuffer.wrap(value)));
+          size = Math.min(blockSize(), bis.available());
+          value = new byte[size];
+        }
       }
     };
   }
 
-  // hold in memoery all writter object until a flush is called.
+  // hold in memory all writer object until a flush is called.
   // similar to jgit org.eclipse.jgit.internal.storage.dfs.InMemoryRepository.Out
-  private abstract static class Out extends DfsOutputStream {
+  private abstract class Out extends DfsOutputStream {
     private final ByteArrayOutputStream dst = new ByteArrayOutputStream();
 
     private byte[] data;
@@ -256,6 +263,11 @@ public class CassandraObjDatabase extends DfsObjDatabase {
     @Override
     public void close() {
       flush();
+    }
+
+    @Override
+    public int blockSize() {
+      return blockSize;
     }
   }
 
