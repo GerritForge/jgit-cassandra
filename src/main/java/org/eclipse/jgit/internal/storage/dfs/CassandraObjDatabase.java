@@ -1,4 +1,4 @@
-package com.gerritforge.jgit.storage.cassandra;
+package org.eclipse.jgit.internal.storage.dfs;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,12 +10,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import org.eclipse.jgit.internal.storage.dfs.DfsObjDatabase;
-import org.eclipse.jgit.internal.storage.dfs.DfsOutputStream;
-import org.eclipse.jgit.internal.storage.dfs.DfsPackDescription;
-import org.eclipse.jgit.internal.storage.dfs.DfsReaderOptions;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
-import org.eclipse.jgit.internal.storage.dfs.ReadableChannel;
 import org.eclipse.jgit.internal.storage.pack.PackExt;
 
 import com.datastax.driver.core.PreparedStatement;

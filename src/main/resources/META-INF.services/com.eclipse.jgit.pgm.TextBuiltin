@@ -1,1 +1,1 @@
-com.gerritforge.jgit.storage.cassandra.pgm.CassandraDaemon
+org.eclipse.jgit.internal.storage.dfs.pgm.CassandraDaemon

@@ -1,4 +1,4 @@
-package com.gerritforge.jgit.storage.cassandra.pgm;
+package org.eclipse.jgit.internal.storage.dfs.pgm;
 
 public class Main extends org.eclipse.jgit.pgm.Main {
     

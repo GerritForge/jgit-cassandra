@@ -1,4 +1,4 @@
-package com.gerritforge.jgit.storage.cassandra.pgm;
+package org.eclipse.jgit.internal.storage.dfs.pgm;
 
 import java.io.File;
 import java.net.InetSocketAddress;
