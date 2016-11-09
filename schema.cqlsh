@@ -2,4 +2,4 @@ CREATE KEYSPACE git_store WITH REPLICATION = { 'class' : 'SimpleStrategy', 'repl
 
 CREATE TABLE git_store.packs( id TEXT, offset BIGINT, value BLOB, PRIMARY KEY ((id,offset)));
 
-CREATE TABLE git_store.pack_list( id TEXT, packs LIST<STRING>, PRIMARY KEY (id));
+CREATE TABLE git_store.pack_list( id TEXT, packs LIST<TEXT>, PRIMARY KEY (id));

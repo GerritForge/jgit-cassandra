@@ -9,7 +9,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.gerritforge.jgit.storage.pgm;
+package com.gerritforge.jgit.storage.cassandra.pgm;
 
 public class Main extends org.eclipse.jgit.pgm.Main {
 

@@ -9,7 +9,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.gerritforge.jgit.storage;
+package com.gerritforge.jgit.storage.cassandra;
 
 import static org.junit.Assert.*;
 
@@ -17,8 +17,9 @@ import com.datastax.driver.core.Cluster;
 import java.io.IOException;
 import org.cassandraunit.CassandraCQLUnit;
 import org.cassandraunit.dataset.cql.ClassPathCQLDataSet;
-import org.eclipse.jgit.internal.storage.dfs.CassandraObjDatabase;
-import org.eclipse.jgit.internal.storage.dfs.CassandraRepository;
+import com.gerritforge.jgit.storage.cassandra.CassandraObjDatabase;
+import com.gerritforge.jgit.storage.cassandra.CassandraRepository;
+
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectInserter;

@@ -1,4 +1,4 @@
-package org.eclipse.jgit.internal.storage.dfs;
+package com.gerritforge.jgit.storage.cassandra;
 
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
@@ -16,12 +16,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+
+import org.eclipse.jgit.internal.storage.dfs.DfsBlockCache;
+import org.eclipse.jgit.internal.storage.dfs.DfsObjDatabase;
+import org.eclipse.jgit.internal.storage.dfs.DfsOutputStream;
+import org.eclipse.jgit.internal.storage.dfs.DfsPackDescription;
+import org.eclipse.jgit.internal.storage.dfs.DfsReaderOptions;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
+import org.eclipse.jgit.internal.storage.dfs.ReadableChannel;
 import org.eclipse.jgit.internal.storage.pack.PackExt;
 
 public class CassandraObjDatabase extends DfsObjDatabase {
 
   final Session session;
-  final PreparedStatement readPack;
+  final int blockSize;
+    finalPreparedStatement readPack;
   final PreparedStatement insertPack;
   final PreparedStatement readPackList;
   final PreparedStatement updatePackList;
@@ -29,9 +39,9 @@ public class CassandraObjDatabase extends DfsObjDatabase {
   final Gson gson = new Gson();
 
   protected CassandraObjDatabase(
-      Session session, DfsRepository repository, DfsReaderOptions options) {
+      Session session, DfsRepository repository, DfsReaderOptions options, int blockSize) {
     super(repository, options);
-    this.session = session;
+    this.session = session;this.blockSize = blockSize;
     readPack =
         session.prepare(
             QueryBuilder.select("value")
@@ -67,7 +77,10 @@ public class CassandraObjDatabase extends DfsObjDatabase {
 
     public CassandraPack(String name, DfsRepositoryDescription repoDesc) {
       super(repoDesc, name);
-    }
+    }}
+
+    public int getBlockSize() {
+        return blockSize;
   }
 
   @Override
@@ -95,17 +108,17 @@ public class CassandraObjDatabase extends DfsObjDatabase {
 
   @Override
   protected List<DfsPackDescription> listPacks() throws IOException {
-    ResultSet packListRst =
-        session.execute(readPackList.bind(getRepository().getDescription().getRepositoryName()));
+    List<DfsPackDescription> packList = new ArrayList<>();ResultSet packListRst =
+        session.execute(readPackList.bind(getRepository().getDescription().getRepositoryName()));if (!packListRst.isExhausted()) {
     Row row = packListRst.one();
     List<String> listJsonPacks = row.getList("packs", String.class);
-    List<DfsPackDescription> packList = new ArrayList<>(listJsonPacks.size());
+
     for (String packDescriptionJson : listJsonPacks) {
       DfsPackDescription dfsPackDescription =
           gson.fromJson(packDescriptionJson, DfsPackDescription.class);
       packList.add(dfsPackDescription);
     }
-    return packList;
+    }return packList;
   }
 
   @Override
@@ -146,7 +159,7 @@ public class CassandraObjDatabase extends DfsObjDatabase {
 
     @Override
     public int blockSize() {
-      return DfsBlockCache.getInstance().getBlockSize();
+      return getBlockSize();
     }
 
     @Override
