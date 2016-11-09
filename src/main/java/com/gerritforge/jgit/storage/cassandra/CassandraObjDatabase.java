@@ -1,4 +1,4 @@
-package org.eclipse.jgit.internal.storage.dfs;
+package com.gerritforge.jgit.storage.cassandra;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,6 +10,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import org.eclipse.jgit.internal.storage.dfs.DfsBlockCache;
+import org.eclipse.jgit.internal.storage.dfs.DfsObjDatabase;
+import org.eclipse.jgit.internal.storage.dfs.DfsOutputStream;
+import org.eclipse.jgit.internal.storage.dfs.DfsPackDescription;
+import org.eclipse.jgit.internal.storage.dfs.DfsReaderOptions;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
+import org.eclipse.jgit.internal.storage.dfs.ReadableChannel;
 import org.eclipse.jgit.internal.storage.pack.PackExt;
 
 import com.datastax.driver.core.PreparedStatement;
@@ -23,6 +31,7 @@ import com.google.gson.Gson;
 public class CassandraObjDatabase extends DfsObjDatabase {
     
     final Session session;
+    final int blockSize;
     final PreparedStatement readPack;
     final PreparedStatement insertPack;
     final PreparedStatement readPackList;
@@ -31,9 +40,10 @@ public class CassandraObjDatabase extends DfsObjDatabase {
     final Gson gson = new Gson();
     
     protected CassandraObjDatabase(Session session, DfsRepository repository,
-                    DfsReaderOptions options) {
+                    DfsReaderOptions options, int blockSize) {
         super(repository, options);
         this.session = session;
+        this.blockSize = blockSize;
         readPack = session.prepare(
                         QueryBuilder
                                         .select("value")
@@ -72,6 +82,10 @@ public class CassandraObjDatabase extends DfsObjDatabase {
         }
     }
     
+    public int getBlockSize() {
+        return blockSize;
+    }
+    
     @Override
     protected DfsPackDescription newPack(PackSource packSource) throws IOException {
         UUID id = UUIDs.timeBased();
@@ -94,13 +108,15 @@ public class CassandraObjDatabase extends DfsObjDatabase {
     
     @Override
     protected List<DfsPackDescription> listPacks() throws IOException {
+        List<DfsPackDescription> packList = new ArrayList<>();
         ResultSet packListRst = session.execute(readPackList.bind(getRepository().getDescription().getRepositoryName()));
-        Row row = packListRst.one();
-        List<String> listJsonPacks = row.getList("packs", String.class);
-        List<DfsPackDescription> packList = new ArrayList<>(listJsonPacks.size());
-        for (String packDescriptionJson : listJsonPacks) {
-            DfsPackDescription dfsPackDescription = gson.fromJson(packDescriptionJson, DfsPackDescription.class);
-            packList.add(dfsPackDescription);
+        if (!packListRst.isExhausted()) {
+            Row row = packListRst.one();
+            List<String> listJsonPacks = row.getList("packs", String.class);
+            for (String packDescriptionJson : listJsonPacks) {
+                DfsPackDescription dfsPackDescription = gson.fromJson(packDescriptionJson, DfsPackDescription.class);
+                packList.add(dfsPackDescription);
+            }
         }
         return packList;
     }
@@ -141,7 +157,7 @@ public class CassandraObjDatabase extends DfsObjDatabase {
         
         @Override
         public int blockSize() {
-            return DfsBlockCache.getInstance().getBlockSize();
+            return getBlockSize();
         }
         
         @Override

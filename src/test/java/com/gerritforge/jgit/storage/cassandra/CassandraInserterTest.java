@@ -1,10 +1,11 @@
-package org.eclipse.jgit.internal.storage.dfs;
+package com.gerritforge.jgit.storage.cassandra;
 
 import com.datastax.driver.core.Cluster;
 import org.cassandraunit.CassandraCQLUnit;
 import org.cassandraunit.dataset.cql.ClassPathCQLDataSet;
-import org.eclipse.jgit.internal.storage.dfs.CassandraObjDatabase;
-import org.eclipse.jgit.internal.storage.dfs.CassandraRepository;
+import com.gerritforge.jgit.storage.cassandra.CassandraObjDatabase;
+import com.gerritforge.jgit.storage.cassandra.CassandraRepository;
+
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectInserter;

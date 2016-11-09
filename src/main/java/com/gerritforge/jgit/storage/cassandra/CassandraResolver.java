@@ -1,4 +1,4 @@
-package org.eclipse.jgit.internal.storage.dfs;
+package com.gerritforge.jgit.storage.cassandra;
 
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Repository;
