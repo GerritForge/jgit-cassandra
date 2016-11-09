@@ -10,13 +10,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import org.eclipse.jgit.internal.storage.dfs.DfsBlockCache;
 import org.eclipse.jgit.internal.storage.dfs.DfsObjDatabase;
 import org.eclipse.jgit.internal.storage.dfs.DfsOutputStream;
 import org.eclipse.jgit.internal.storage.dfs.DfsPackDescription;
 import org.eclipse.jgit.internal.storage.dfs.DfsReaderOptions;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.ReadableChannel;
 import org.eclipse.jgit.internal.storage.pack.PackExt;
 
@@ -27,6 +25,7 @@ import com.datastax.driver.core.Session;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.utils.UUIDs;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class CassandraObjDatabase extends DfsObjDatabase {
     
@@ -37,7 +36,7 @@ public class CassandraObjDatabase extends DfsObjDatabase {
     final PreparedStatement readPackList;
     final PreparedStatement updatePackList;
     
-    final Gson gson = new Gson();
+    final Gson gson = (new GsonBuilder()).registerTypeHierarchyAdapter(CassandraPack.class, new CassandraPackTypeAdapter()).create();
     
     protected CassandraObjDatabase(Session session, DfsRepository repository,
                     DfsReaderOptions options, int blockSize) {
@@ -75,13 +74,6 @@ public class CassandraObjDatabase extends DfsObjDatabase {
         
     }
     
-    private static class CassandraPack extends DfsPackDescription {
-        
-        public CassandraPack(String name, DfsRepositoryDescription repoDesc) {
-            super(repoDesc, name);
-        }
-    }
-    
     public int getBlockSize() {
         return blockSize;
     }
@@ -114,7 +106,7 @@ public class CassandraObjDatabase extends DfsObjDatabase {
             Row row = packListRst.one();
             List<String> listJsonPacks = row.getList("packs", String.class);
             for (String packDescriptionJson : listJsonPacks) {
-                DfsPackDescription dfsPackDescription = gson.fromJson(packDescriptionJson, DfsPackDescription.class);
+                DfsPackDescription dfsPackDescription = gson.fromJson(packDescriptionJson, CassandraPack.class);
                 packList.add(dfsPackDescription);
             }
         }
@@ -197,7 +189,7 @@ public class CassandraObjDatabase extends DfsObjDatabase {
     
     @Override
     protected DfsOutputStream writeFile(final DfsPackDescription dfsPackDescription, final PackExt packExt) throws IOException {
-        return new Out(){
+        return new Out() {
             @Override
             public void flush() {
                 String name = dfsPackDescription.getFileName(packExt);
@@ -207,13 +199,13 @@ public class CassandraObjDatabase extends DfsObjDatabase {
                 /*while (bis.read(value, offset, blockSize())){
                     
                 }*/
-//                if (bis){
-//                    long pos = 0;
-//                    while(pos < dfsPackDescription.getFileSize(packExt)){
-//                        long offset = pos + blockSize();
-//                        session.execute(insertPack.bind(name, offset, data[]));
-//                    }
-//                }
+                //                if (bis){
+                //                    long pos = 0;
+                //                    while(pos < dfsPackDescription.getFileSize(packExt)){
+                //                        long offset = pos + blockSize();
+                //                        session.execute(insertPack.bind(name, offset, data[]));
+                //                    }
+                //                }
             }
         };
     }
@@ -222,40 +214,41 @@ public class CassandraObjDatabase extends DfsObjDatabase {
     // similar to jgit org.eclipse.jgit.internal.storage.dfs.InMemoryRepository.Out
     private abstract static class Out extends DfsOutputStream {
         private final ByteArrayOutputStream dst = new ByteArrayOutputStream();
-    
+        
         private byte[] data;
-    
+        
         @Override
         public void write(byte[] buf, int off, int len) {
             data = null;
             dst.write(buf, off, len);
         }
-    
+        
         @Override
         public int read(long position, ByteBuffer buf) {
             byte[] d = getData();
             int n = Math.min(buf.remaining(), d.length - (int) position);
-            if (n == 0)
+            if (n == 0) {
                 return -1;
+            }
             buf.put(d, (int) position, n);
             return n;
         }
         
-    
         byte[] getData() {
-            if (data == null)
+            if (data == null) {
                 data = dst.toByteArray();
+            }
             return data;
         }
-    
+        
         @Override
         public abstract void flush();
-    
+        
         @Override
         public void close() {
             flush();
         }
-    
+        
     }
     
     @Override
