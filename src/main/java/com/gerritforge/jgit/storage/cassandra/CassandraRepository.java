@@ -27,13 +27,13 @@ public class CassandraRepository extends DfsRepository {
     
 
     public CassandraRepository(Cluster cluster, DfsRepositoryDescription repoDesc){
-        this(cluster, new Builder().setRepositoryDescription(repoDesc));
+        this(cluster, new Builder().setRepositoryDescription(repoDesc), new DfsBlockCacheConfig());
     }
     
-    protected CassandraRepository(Cluster cluster, DfsRepositoryBuilder builder) {
+    protected CassandraRepository(Cluster cluster, DfsRepositoryBuilder builder, DfsBlockCacheConfig dfsBlockCacheConfig) {
         super(builder);
         this.cluster = cluster;
-        this.cassandraObjDatabase = new CassandraObjDatabase(cluster.newSession(), this, new DfsReaderOptions(), (new DfsBlockCacheConfig()).getBlockSize());
+        this.cassandraObjDatabase = new CassandraObjDatabase(cluster.newSession(), this, new DfsReaderOptions(), dfsBlockCacheConfig.getBlockSize());
     }
     
     @Override
