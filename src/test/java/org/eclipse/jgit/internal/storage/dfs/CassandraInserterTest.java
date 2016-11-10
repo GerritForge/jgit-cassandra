@@ -3,6 +3,7 @@ package org.eclipse.jgit.internal.storage.dfs;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.zip.Deflater;
 
@@ -11,6 +12,7 @@ import org.cassandraunit.dataset.cql.ClassPathCQLDataSet;
 import org.eclipse.jgit.internal.storage.pack.PackExt;
 import org.eclipse.jgit.junit.JGitTestUtil;
 import org.eclipse.jgit.junit.TestRng;
+import org.eclipse.jgit.lib.AbbreviatedObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
@@ -26,6 +28,7 @@ import org.junit.Test;
 import com.datastax.driver.core.Cluster;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -54,9 +57,9 @@ public class CassandraInserterTest {
         try (ObjectInserter ins = db.newObjectInserter()) {
             ins.insert(Constants.OBJ_BLOB, Constants.encode("foo"));
             ins.insert(Constants.OBJ_BLOB, Constants.encode("bar"));
-            Assert.assertEquals(0, ((CassandraObjDatabase) db.getObjectDatabase()).listPacks().size());
+            Assert.assertEquals(0, db.getObjectDatabase().listPacks().size());
         }
-        assertEquals(0, ((CassandraObjDatabase) db.getObjectDatabase()).listPacks().size());
+        assertEquals(0, db.getObjectDatabase().listPacks().size());
     }
     
     @Test
@@ -64,15 +67,15 @@ public class CassandraInserterTest {
         ObjectInserter ins = db.newObjectInserter();
         ObjectId id1 = ins.insert(Constants.OBJ_BLOB, Constants.encode("foo"));
         ObjectId id2 = ins.insert(Constants.OBJ_BLOB, Constants.encode("bar"));
-        assertEquals(0, ((CassandraObjDatabase) db.getObjectDatabase()).listPacks().size());
+        assertEquals(0, db.getObjectDatabase().listPacks().size());
         
         ObjectReader reader = ins.newReader();
         assertSame(ins, reader.getCreatedFromInserter());
         assertEquals("foo", readString(reader.open(id1)));
         assertEquals("bar", readString(reader.open(id2)));
-        assertEquals(0, ((CassandraObjDatabase) db.getObjectDatabase()).listPacks().size());
+        assertEquals(0, db.getObjectDatabase().listPacks().size());
         ins.flush();
-        assertEquals(1, ((CassandraObjDatabase) db.getObjectDatabase()).listPacks().size());
+        assertEquals(1, db.getObjectDatabase().listPacks().size());
     }
     
     @Test
@@ -92,17 +95,57 @@ public class CassandraInserterTest {
         DfsInserter ins = (DfsInserter) db.newObjectInserter();
         ins.setCompressionLevel(Deflater.NO_COMPRESSION);
         ObjectId id1 = ins.insert(Constants.OBJ_BLOB, data);
-        assertEquals(0, ((CassandraObjDatabase) db.getObjectDatabase()).listPacks().size());
+        assertEquals(0, db.getObjectDatabase().listPacks().size());
         
         ObjectReader reader = ins.newReader();
         assertSame(ins, reader.getCreatedFromInserter());
         assertTrue(Arrays.equals(data, readStream(reader.open(id1))));
-        assertEquals(0, ((CassandraObjDatabase) db.getObjectDatabase()).listPacks().size());
+        assertEquals(0, db.getObjectDatabase().listPacks().size());
         ins.flush();
         
-        List<DfsPackDescription> packs = ((CassandraObjDatabase) db.getObjectDatabase()).listPacks();
+        List<DfsPackDescription> packs = db.getObjectDatabase().listPacks();
         assertEquals(1, packs.size());
         assertTrue(packs.get(0).getFileSize(PackExt.PACK) > 2048);
+    }
+    
+    @Test
+    public void testReadFromFallback() throws IOException {
+        ObjectInserter ins = db.newObjectInserter();
+        ObjectId id1 = ins.insert(Constants.OBJ_BLOB, Constants.encode("foo"));
+        ins.flush();
+        ObjectId id2 = ins.insert(Constants.OBJ_BLOB, Constants.encode("bar"));
+        assertEquals(1, db.getObjectDatabase().listPacks().size());
+        
+        ObjectReader reader = ins.newReader();
+        assertSame(ins, reader.getCreatedFromInserter());
+        assertEquals("foo", readString(reader.open(id1)));
+        assertEquals("bar", readString(reader.open(id2)));
+        assertEquals(1, db.getObjectDatabase().listPacks().size());
+        ins.flush();
+        assertEquals(2, db.getObjectDatabase().listPacks().size());
+    }
+    
+    
+    @Test
+    public void testReaderResolve() throws IOException {
+        ObjectInserter ins = db.newObjectInserter();
+        ObjectId id1 = ins.insert(Constants.OBJ_BLOB, Constants.encode("foo"));
+        ins.flush();
+        ObjectId id2 = ins.insert(Constants.OBJ_BLOB, Constants.encode("bar"));
+        String abbr1 = ObjectId.toString(id1).substring(0, 4);
+        String abbr2 = ObjectId.toString(id2).substring(0, 4);
+        assertFalse(abbr1.equals(abbr2));
+        
+        ObjectReader reader = ins.newReader();
+        assertSame(ins, reader.getCreatedFromInserter());
+        Collection<ObjectId> objs;
+        objs = reader.resolve(AbbreviatedObjectId.fromString(abbr1));
+        assertEquals(1, objs.size());
+        assertEquals(id1, objs.iterator().next());
+        
+        objs = reader.resolve(AbbreviatedObjectId.fromString(abbr2));
+        assertEquals(1, objs.size());
+        assertEquals(id2, objs.iterator().next());
     }
     
     private static String readString(ObjectLoader loader) throws IOException {
