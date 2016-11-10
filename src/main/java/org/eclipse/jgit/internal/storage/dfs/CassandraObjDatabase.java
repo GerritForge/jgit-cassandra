@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.eclipse.jgit.internal.storage.pack.PackExt;
@@ -16,10 +18,16 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
-import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.utils.UUIDs;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import static com.datastax.driver.core.querybuilder.QueryBuilder.addAll;
+import static com.datastax.driver.core.querybuilder.QueryBuilder.bindMarker;
+import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
+import static com.datastax.driver.core.querybuilder.QueryBuilder.insertInto;
+import static com.datastax.driver.core.querybuilder.QueryBuilder.select;
+import static com.datastax.driver.core.querybuilder.QueryBuilder.update;
 
 public class CassandraObjDatabase extends DfsObjDatabase {
     
@@ -38,32 +46,29 @@ public class CassandraObjDatabase extends DfsObjDatabase {
         this.session = session;
         this.blockSize = blockSize;
         readPack = session.prepare(
-                        QueryBuilder
-                                        .select("value")
+                        select("value")
                                         .from("git_store", "packs")
-                                        .where(QueryBuilder.eq("id", QueryBuilder.bindMarker()))
-                                        .and(QueryBuilder.eq("offset", QueryBuilder.bindMarker()))
+                                        .where(eq("id", bindMarker("id")))
+                                        .and(eq("offset", bindMarker("offset")))
                                         .toString());
         
         insertPack = session.prepare(
-                        QueryBuilder
-                                        .insertInto("git_store", "packs")
-                                        .value("id", QueryBuilder.bindMarker())
-                                        .value("offset", QueryBuilder.bindMarker())
-                                        .value("value", QueryBuilder.bindMarker())
+                        insertInto("git_store", "packs")
+                                        .value("id", bindMarker("id"))
+                                        .value("offset", bindMarker("offset"))
+                                        .value("value", bindMarker("value"))
                                         .toString());
         
         readPackList = session.prepare(
-                        QueryBuilder
-                                        .select("packs")
+                        select("packs")
                                         .from("git_store", "pack_list")
-                                        .where(QueryBuilder.eq("id", QueryBuilder.bindMarker()))
+                                        .where(eq("id", bindMarker("id")))
                                         .toString());
         
         updatePackList = session.prepare(
-                        QueryBuilder.insertInto("git_store", "pack_list")
-                                        .value("id", QueryBuilder.bindMarker())
-                                        .value("packs", QueryBuilder.bindMarker())
+                        update("git_store", "pack_list")
+                                        .with(addAll("packs", bindMarker("packs")))
+                                        .where(eq("id", bindMarker("id")))
                                         .toString());
         
     }
@@ -81,11 +86,14 @@ public class CassandraObjDatabase extends DfsObjDatabase {
     
     @Override
     protected void commitPackImpl(Collection<DfsPackDescription> desc, Collection<DfsPackDescription> replace) throws IOException {
-        List<String> descJson = new ArrayList<>(desc.size());
+        Set<String> descJson = new HashSet<>(desc.size());
         for (DfsPackDescription dfsPackDescription : desc) {
             descJson.add(gson.toJson(dfsPackDescription));
         }
-        session.execute(updatePackList.bind(getRepository().getDescription().getRepositoryName(), descJson));
+        session.execute(
+                        updatePackList.bind()
+                                        .setSet("packs", descJson, String.class)
+                                        .setString("id", getRepository().getDescription().getRepositoryName()));
         
         if (replace != null) {
             //TODO replace pack descriptions
@@ -95,10 +103,10 @@ public class CassandraObjDatabase extends DfsObjDatabase {
     @Override
     protected List<DfsPackDescription> listPacks() throws IOException {
         List<DfsPackDescription> packList = new ArrayList<>();
-        ResultSet packListRst = session.execute(readPackList.bind(getRepository().getDescription().getRepositoryName()));
+        ResultSet packListRst = session.execute(readPackList.bind().setString("id", getRepository().getDescription().getRepositoryName()));
         if (!packListRst.isExhausted()) {
             Row row = packListRst.one();
-            List<String> listJsonPacks = row.getList("packs", String.class);
+            Set<String> listJsonPacks = row.getSet("packs", String.class);
             for (String packDescriptionJson : listJsonPacks) {
                 DfsPackDescription dfsPackDescription = gson.fromJson(packDescriptionJson, CassandraPack.class);
                 packList.add(dfsPackDescription);
@@ -191,7 +199,7 @@ public class CassandraObjDatabase extends DfsObjDatabase {
                 int size = Math.min(blockSize(), bis.available());
                 byte[] value = new byte[size];
                 long offset = 0;
-                while (size > 0 &&  bis.read(value, 0, size) != -1) {
+                while (size > 0 && bis.read(value, 0, size) != -1) {
                     offset = offset + blockSize;
                     session.execute(insertPack.bind(name, offset, ByteBuffer.wrap(value)));
                     size = Math.min(blockSize(), bis.available());
