@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.Deflater;
 
 import org.cassandraunit.CassandraCQLUnit;
@@ -22,6 +24,7 @@ import org.eclipse.jgit.util.IO;
 import org.eclipse.jgit.util.RawParseUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -46,7 +49,7 @@ public class CassandraInserterTest {
     @Before
     public void setup() {
         cluster = cassandraCQLUnit.getCluster();
-        //        Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").withClusterName("git_store").build();
+//          cluster = Cluster.builder().addContactPoint("127.0.0.1").withClusterName("git_store").build();
         db = new CassandraRepository(cluster, new CassandraRepository.Builder().setRepositoryDescription(new DfsRepositoryDescription("test")),
                         new DfsBlockCacheConfig()
                                         .setBlockSize(1024));
@@ -125,7 +128,6 @@ public class CassandraInserterTest {
         assertEquals(2, db.getObjectDatabase().listPacks().size());
     }
     
-    
     @Test
     public void testReaderResolve() throws IOException {
         ObjectInserter ins = db.newObjectInserter();
@@ -146,6 +148,89 @@ public class CassandraInserterTest {
         objs = reader.resolve(AbbreviatedObjectId.fromString(abbr2));
         assertEquals(1, objs.size());
         assertEquals(id2, objs.iterator().next());
+    }
+    
+    @Test
+    @Ignore
+    public void testGarbageSelectivelyVisible() throws IOException {
+        ObjectInserter ins = db.newObjectInserter();
+        ObjectId fooId = ins.insert(Constants.OBJ_BLOB, Constants.encode("foo"));
+        ins.flush();
+        assertEquals(1, db.getObjectDatabase().listPacks().size());
+        
+        // Make pack 0 garbage.
+        db.getObjectDatabase().listPacks().get(0).setPackSource(DfsObjDatabase.PackSource.UNREACHABLE_GARBAGE);
+        
+        // Default behavior should be that the database has foo, because we allow garbage objects.
+        assertTrue(db.getObjectDatabase().has(fooId));
+        // But we should not be able to see it if we pass the right args.
+        assertFalse(db.getObjectDatabase().has(fooId, true));
+    }
+    
+    @Test
+    @Ignore
+    public void testInserterIgnoresUnreachable() throws IOException {
+        ObjectInserter ins = db.newObjectInserter();
+        ObjectId fooId = ins.insert(Constants.OBJ_BLOB, Constants.encode("foo"));
+        ins.flush();
+        assertEquals(1, db.getObjectDatabase().listPacks().size());
+        
+        // Make pack 0 garbage.
+        db.getObjectDatabase().listPacks().get(0).setPackSource(DfsObjDatabase.PackSource.UNREACHABLE_GARBAGE);
+        
+        // We shouldn't be able to see foo because it's garbage.
+        assertFalse(db.getObjectDatabase().has(fooId, true));
+        
+        // But if we re-insert foo, it should become visible again.
+        ins.insert(Constants.OBJ_BLOB, Constants.encode("foo"));
+        ins.flush();
+        assertTrue(db.getObjectDatabase().has(fooId, true));
+        
+        // Verify that we have a foo in both packs, and 1 of them is garbage.
+        DfsReader reader = new DfsReader(db.getObjectDatabase());
+        DfsPackFile packs[] = db.getObjectDatabase().getPacks();
+        Set<DfsObjDatabase.PackSource> pack_sources = new HashSet<DfsObjDatabase.PackSource>();
+        
+        assertEquals(2, packs.length);
+        
+        pack_sources.add(packs[0].getPackDescription().getPackSource());
+        pack_sources.add(packs[1].getPackDescription().getPackSource());
+        
+        assertTrue(packs[0].hasObject(reader, fooId));
+        assertTrue(packs[1].hasObject(reader, fooId));
+        assertTrue(pack_sources.contains(DfsObjDatabase.PackSource.UNREACHABLE_GARBAGE));
+        assertTrue(pack_sources.contains(DfsObjDatabase.PackSource.INSERT));
+    }
+    
+    @Test
+    public void testNoCheckExisting() throws IOException {
+        byte[] contents = Constants.encode("foo");
+        ObjectId fooId;
+        try (ObjectInserter ins = db.newObjectInserter()) {
+            fooId = ins.insert(Constants.OBJ_BLOB, contents);
+            ins.flush();
+        }
+        assertEquals(1, db.getObjectDatabase().listPacks().size());
+        
+        try (ObjectInserter ins = db.newObjectInserter()) {
+            ((DfsInserter) ins).checkExisting(false);
+            assertEquals(fooId, ins.insert(Constants.OBJ_BLOB, contents));
+            ins.flush();
+        }
+        assertEquals(2, db.getObjectDatabase().listPacks().size());
+        
+        // Verify that we have a foo in both INSERT packs.
+        DfsReader reader = new DfsReader(db.getObjectDatabase());
+        DfsPackFile packs[] = db.getObjectDatabase().getPacks();
+        
+        assertEquals(2, packs.length);
+        DfsPackFile p1 = packs[0];
+        assertEquals(DfsObjDatabase.PackSource.INSERT, p1.getPackDescription().getPackSource());
+        assertTrue(p1.hasObject(reader, fooId));
+        
+        DfsPackFile p2 = packs[1];
+        assertEquals(DfsObjDatabase.PackSource.INSERT, p2.getPackDescription().getPackSource());
+        assertTrue(p2.hasObject(reader, fooId));
     }
     
     private static String readString(ObjectLoader loader) throws IOException {

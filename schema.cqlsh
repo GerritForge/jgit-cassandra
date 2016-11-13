@@ -1,5 +1,5 @@
 CREATE KEYSPACE git_store WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
 
-CREATE TABLE git_store.packs( id TEXT, offset BIGINT, value BLOB, PRIMARY KEY ((id,offset)));
+CREATE TABLE git_store.packs(id UUID, ext TEXT, offset BIGINT, value BLOB, PRIMARY KEY ((id, ext, offset)));
 
-CREATE TABLE git_store.pack_list( id TEXT, packs SET<TEXT>, PRIMARY KEY (id));
+CREATE TABLE git_store.pack_list(name TEXT, id UUID, ext TEXT, size BIGINT, source TEXT, lmd BIGINT, PRIMARY KEY (name, id, ext));
