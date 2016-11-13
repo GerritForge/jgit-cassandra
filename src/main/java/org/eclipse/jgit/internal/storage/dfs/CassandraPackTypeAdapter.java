@@ -3,6 +3,7 @@ package org.eclipse.jgit.internal.storage.dfs;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.eclipse.jgit.internal.storage.pack.PackExt;
 
@@ -68,7 +69,7 @@ public class CassandraPackTypeAdapter extends TypeAdapter<CassandraPack> {
             }
         }
         in.endObject();
-        CassandraPack cassandraPack = new CassandraPack(name, new DfsRepositoryDescription(repositoryName));
+        CassandraPack cassandraPack = new CassandraPack(UUID.fromString(name), new DfsRepositoryDescription(repositoryName));
         for (PackExt packExt : sizeMap.keySet()) {
             cassandraPack.setFileSize(packExt, sizeMap.get(packExt));
         }

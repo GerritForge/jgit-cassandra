@@ -1,8 +1,11 @@
 package org.eclipse.jgit.internal.storage.dfs;
 
+import java.util.UUID;
+
 import org.eclipse.jgit.internal.storage.pack.PackExt;
 import org.junit.Test;
 
+import com.datastax.driver.core.utils.UUIDs;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -14,12 +17,14 @@ public class SerialisationTest {
     
     @Test
     public void testDeserialiseDfsPackDescription() {
-        DfsPackDescription dfsPdActual = new CassandraPack("packName", new DfsRepositoryDescription("test"));
-        dfsPdActual.setFileSize(PackExt.PACK, 1024);
-        String dfsDescriptionString = gson.toJson(dfsPdActual);
+        UUID id = UUIDs.timeBased();
+        CassandraPack cassandraPack = new CassandraPack(id, new DfsRepositoryDescription("test"));
+        cassandraPack.getLastModified();
+        cassandraPack.setFileSize(PackExt.PACK, 1024);
+        String dfsDescriptionString = gson.toJson(cassandraPack);
         CassandraPack dfsPackDescription = gson.fromJson(dfsDescriptionString, CassandraPack.class);
         assertEquals("test", dfsPackDescription.getRepositoryDescription().getRepositoryName());
-        assertEquals("packName.pack", dfsPackDescription.getFileName(PackExt.PACK));
+        assertEquals(id + ".pack", dfsPackDescription.getFileName(PackExt.PACK));
         assertEquals(1024, dfsPackDescription.getFileSize(PackExt.PACK));
         
     }
