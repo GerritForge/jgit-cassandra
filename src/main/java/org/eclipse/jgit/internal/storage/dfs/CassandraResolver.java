@@ -7,10 +7,10 @@ import org.eclipse.jgit.transport.resolver.RepositoryResolver;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 
-public class CassandraResolver<C> implements RepositoryResolver<C>{
+public class CassandraResolver<C> implements RepositoryResolver<C> {
     @Override
     public Repository open(C c, String s)
-                    throws RepositoryNotFoundException, ServiceNotAuthorizedException, ServiceNotEnabledException, ServiceMayNotContinueException {
+        throws RepositoryNotFoundException, ServiceNotAuthorizedException, ServiceNotEnabledException, ServiceMayNotContinueException {
         return null;
     }
 }

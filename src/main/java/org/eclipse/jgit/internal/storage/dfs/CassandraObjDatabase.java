@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.management.Query;
-
 import org.eclipse.jgit.internal.storage.pack.PackExt;
 
 import com.datastax.driver.core.BatchStatement;
@@ -21,7 +19,6 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
-import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.utils.UUIDs;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -43,41 +40,41 @@ public class CassandraObjDatabase extends DfsObjDatabase {
     final Gson gson = (new GsonBuilder()).registerTypeHierarchyAdapter(CassandraPack.class, new CassandraPackTypeAdapter()).create();
     
     protected CassandraObjDatabase(Session session, DfsRepository repository,
-                    DfsReaderOptions options, int blockSize) {
+        DfsReaderOptions options, int blockSize) {
         super(repository, options);
         this.session = session;
         this.blockSize = blockSize;
         readPack = session.prepare(
-                        select("value")
-                                        .from("git_store", "packs")
-                                        .where(eq("id", bindMarker("id")))
-                                        .and(eq("ext", bindMarker("ext")))
-                                        .and(eq("offset", bindMarker("offset")))
-                                        .toString());
+            select("value")
+                .from("git_store", "packs")
+                .where(eq("id", bindMarker("id")))
+                .and(eq("ext", bindMarker("ext")))
+                .and(eq("offset", bindMarker("offset")))
+                .toString());
         
         insertPack = session.prepare(
-                        insertInto("git_store", "packs")
-                                        .value("id", bindMarker("id"))
-                                        .value("ext", bindMarker("ext"))
-                                        .value("offset", bindMarker("offset"))
-                                        .value("value", bindMarker("value"))
-                                        .toString());
+            insertInto("git_store", "packs")
+                .value("id", bindMarker("id"))
+                .value("ext", bindMarker("ext"))
+                .value("offset", bindMarker("offset"))
+                .value("value", bindMarker("value"))
+                .toString());
         
         readPackList = session.prepare(
-                        select("id", "ext", "size", "source", "lmd")
-                                        .from("git_store", "pack_list")
-                                        .where(eq("name", bindMarker("name")))
-                                        .toString());
+            select("id", "ext", "size", "source", "lmd")
+                .from("git_store", "pack_list")
+                .where(eq("name", bindMarker("name")))
+                .toString());
         
         insertToPackList = session.prepare(
-                        insertInto("git_store", "pack_list")
-                                        .value("name", bindMarker("name"))
-                                        .value("id", bindMarker("id"))
-                                        .value("ext", bindMarker("ext"))
-                                        .value("size", bindMarker("size"))
-                                        .value("source", bindMarker("source"))
-                                        .value("lmd", bindMarker("lmd"))
-                                        .toString());
+            insertInto("git_store", "pack_list")
+                .value("name", bindMarker("name"))
+                .value("id", bindMarker("id"))
+                .value("ext", bindMarker("ext"))
+                .value("size", bindMarker("size"))
+                .value("source", bindMarker("source"))
+                .value("lmd", bindMarker("lmd"))
+                .toString());
         
     }
     
@@ -91,7 +88,7 @@ public class CassandraObjDatabase extends DfsObjDatabase {
         UUID id = UUIDs.timeBased();
         DfsPackDescription desc = new CassandraPack(id, getRepository().getDescription());
         return desc.setPackSource(packSource)
-                        .setLastModified(System.currentTimeMillis());
+            .setLastModified(System.currentTimeMillis());
     }
     
     @Override
@@ -104,12 +101,12 @@ public class CassandraObjDatabase extends DfsObjDatabase {
                 long size = cassandraPack.getFileSize(ext);
                 if (size != 0) {
                     batch.add(insertToPackList.bind()
-                                    .setString("name", repoName)
-                                    .setUUID("id", cassandraPack.getId())
-                                    .setString("ext", ext.getExtension())
-                                    .setLong("size", size)
-                                    .setString("source", cassandraPack.getPackSource().toString())
-                                    .setLong("lmd", cassandraPack.getLastModified()));
+                        .setString("name", repoName)
+                        .setUUID("id", cassandraPack.getId())
+                        .setString("ext", ext.getExtension())
+                        .setLong("size", size)
+                        .setString("source", cassandraPack.getPackSource().toString())
+                        .setLong("lmd", cassandraPack.getLastModified()));
                 }
             }
         }
@@ -117,7 +114,7 @@ public class CassandraObjDatabase extends DfsObjDatabase {
             //TODO replace pack descriptions
             throw new IOException("replace not null");
         }
-        if (batch.size() > 0){
+        if (batch.size() > 0) {
             session.execute(batch);
         }
     }
@@ -206,9 +203,9 @@ public class CassandraObjDatabase extends DfsObjDatabase {
             long offset = position + blockSize();
             
             ResultSet rst = session.execute(readPack.bind()
-                                            .setUUID("id", cassandraPack.getId())
-                                            .setString("ext", packExt.toString())
-                                            .setLong("offset", offset)
+                    .setUUID("id", cassandraPack.getId())
+                    .setString("ext", packExt.toString())
+                    .setLong("offset", offset)
                                            );
             if (rst.isExhausted()) {
                 return -1;
@@ -245,10 +242,10 @@ public class CassandraObjDatabase extends DfsObjDatabase {
                 while (size > 0 && bis.read(value, 0, size) != -1) {
                     offset = offset + blockSize;
                     session.execute(insertPack.bind()
-                                    .setUUID("id", cassandraPack.getId())
-                                    .setString("ext", packExt.toString())
-                                    .setLong("offset", offset)
-                                    .setBytes("value", ByteBuffer.wrap(value))
+                            .setUUID("id", cassandraPack.getId())
+                            .setString("ext", packExt.toString())
+                            .setLong("offset", offset)
+                            .setBytes("value", ByteBuffer.wrap(value))
                                    );
                     size = Math.min(blockSize(), bis.available());
                     value = new byte[size];
