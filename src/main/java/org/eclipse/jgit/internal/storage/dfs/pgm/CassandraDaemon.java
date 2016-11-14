@@ -63,9 +63,11 @@ class CassandraDaemon extends TextBuiltin {
     @Option(name = "--ketch")
     CassandraDaemon.KetchServerType ketchServerType;
     
+    
     enum KetchServerType {
         LEADER;
     }
+    
     
     @Argument(required = true, metaVar = "metaVar_directory", usage = "usage_directoriesToExport")
     final List<File> directory = new ArrayList<File>();
@@ -82,8 +84,8 @@ class CassandraDaemon extends TextBuiltin {
         if (configFile != null) {
             if (!configFile.exists()) {
                 throw die(MessageFormat.format(
-                                CLIText.get().configFileNotFound, //
-                                configFile.getAbsolutePath()));
+                    CLIText.get().configFileNotFound, //
+                    configFile.getAbsolutePath()));
             }
             
             FileBasedConfig cfg = new FileBasedConfig(configFile, FS.DETECTED);
@@ -109,21 +111,21 @@ class CassandraDaemon extends TextBuiltin {
         
         final org.eclipse.jgit.transport.Daemon d;
         d = new org.eclipse.jgit.transport.Daemon(
-                        host != null ? new InetSocketAddress(host, port)
-                                        : new InetSocketAddress(port));
+            host != null ? new InetSocketAddress(host, port)
+                : new InetSocketAddress(port));
         d.setPackConfig(packConfig);
         d.setRepositoryResolver(resolver);
         if (0 <= timeout) {
             d.setTimeout(timeout);
         }
-    
+        
         for (final String n : enable) {
             service(d, n).setEnabled(true);
         }
         for (final String n : disable) {
             service(d, n).setEnabled(false);
         }
-    
+        
         for (final String n : canOverride) {
             service(d, n).setOverridable(true);
         }
@@ -138,8 +140,8 @@ class CassandraDaemon extends TextBuiltin {
     }
     
     private static DaemonService service(
-                    final org.eclipse.jgit.transport.Daemon d,
-                    final String n) {
+        final org.eclipse.jgit.transport.Daemon d,
+        final String n) {
         final DaemonService svc = d.getService(n);
         if (svc == null) {
             throw die(MessageFormat.format(CLIText.get().serviceNotSupported, n));
@@ -156,15 +158,15 @@ class CassandraDaemon extends TextBuiltin {
         daemon.setReceivePackFactory(new ReceivePackFactory<DaemonClient>() {
             @Override
             public ReceivePack create(DaemonClient req, Repository repo)
-                            throws ServiceNotEnabledException,
-                            ServiceNotAuthorizedException {
+                throws ServiceNotEnabledException,
+                ServiceNotAuthorizedException {
                 ReceivePack rp = factory.create(req, repo);
                 KetchLeader leader;
                 try {
                     leader = leaders.get(repo);
                 } catch (URISyntaxException err) {
                     throw new ServiceNotEnabledException(
-                                    KetchText.get().invalidFollowerUri, err);
+                        KetchText.get().invalidFollowerUri, err);
                 }
                 rp.setPreReceiveHook(new KetchPreReceive(leader));
                 return rp;
