@@ -76,11 +76,6 @@ public class CassandraObjDatabase extends DfsObjDatabase {
                 .value("source", bindMarker("source"))
                 .value("lmd", bindMarker("lmd"))
                 .toString());
-        session.prepare(
-            insertInto("git_store", "project_description")
-                .value("name", bindMarker("name"))
-            .value("description", bindMarker("description")).toString());
-        session.prepare(select("description").from("git_store", "project_description").where(eq("name", bindMarker("name"))).toString());
     }
     
     public int getBlockSize() {
