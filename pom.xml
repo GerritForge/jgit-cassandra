@@ -7,7 +7,7 @@
     <groupId>com.gerritforge</groupId>
     <artifactId>com.gerritforge.jgit.storage.cassandra</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 
     <name>JGit - Cassandra Storage</name>
 
@@ -91,6 +91,12 @@
                         </goals>
                         <configuration>
                             <!--<finalName>jgit-cs</finalName>-->
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.google.common</pattern>
+                                    <shadedPattern>com.shaded.google.common</shadedPattern>
+                                </relocation>
+                            </relocations>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
