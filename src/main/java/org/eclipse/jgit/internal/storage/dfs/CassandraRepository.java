@@ -28,23 +28,29 @@ public class CassandraRepository extends DfsRepository {
     
     public static class Builder extends DfsRepositoryBuilder<Builder, CassandraRepository> {
         
+        private final Cluster cluster;
+        private final int blockSize;
+        
+        public Builder(Cluster cluster, int blockSize) {
+            this.cluster = cluster;
+            this.blockSize = blockSize;
+            
+        }
+        
         @Override
         public CassandraRepository build() throws IOException {
-            Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").withClusterName("git_store").build();
-            return new CassandraRepository(cluster, this, new DfsBlockCacheConfig());
+            return new CassandraRepository(this, blockSize);
         }
     }
     
     
-    private final Cluster cluster;
     private final CassandraObjDatabase cassandraObjDatabase;
     private final RefDatabase refdb;
     private boolean performsAtomicTransactions = true;
     
-    protected CassandraRepository(Cluster cluster, DfsRepositoryBuilder builder, DfsBlockCacheConfig dfsBlockCacheConfig) {
+    protected CassandraRepository(Builder builder, int blockSize) {
         super(builder);
-        this.cluster = cluster;
-        this.cassandraObjDatabase = new CassandraObjDatabase(cluster.newSession(), this, new DfsReaderOptions(), dfsBlockCacheConfig.getBlockSize());
+        this.cassandraObjDatabase = new CassandraObjDatabase(builder.cluster.newSession(), this, new DfsReaderOptions(), blockSize);
         this.refdb = new MemRefDatabase();
     }
     
