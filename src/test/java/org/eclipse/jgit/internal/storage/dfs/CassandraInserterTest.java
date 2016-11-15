@@ -47,12 +47,10 @@ public class CassandraInserterTest {
     public CassandraCQLUnit cassandraCQLUnit = new CassandraCQLUnit(new ClassPathCQLDataSet("test.cqlsh", "git_store"));
     
     @Before
-    public void setup() {
+    public void setup() throws IOException {
         cluster = cassandraCQLUnit.getCluster();
-//          cluster = Cluster.builder().addContactPoint("127.0.0.1").withClusterName("git_store").build();
-        db = new CassandraRepository(cluster, new CassandraRepository.Builder().setRepositoryDescription(new DfsRepositoryDescription("test")),
-                        new DfsBlockCacheConfig()
-                                        .setBlockSize(1024));
+        //cluster = Cluster.builder().addContactPoint("127.0.0.1").withClusterName("git_store").build();
+        db = (new CassandraRepository.Builder(cluster, 1024)).setRepositoryDescription(new DfsRepositoryDescription("test")).build();
     }
     
     @Test
@@ -83,16 +81,13 @@ public class CassandraInserterTest {
     
     @Test
     public void testReadFromInserterLargerObjects() throws IOException {
-        db = new CassandraRepository(cluster,
-                        new CassandraRepository.Builder().setRepositoryDescription(new DfsRepositoryDescription("test")),
-                        new DfsBlockCacheConfig()
-                                        .setBlockSize(512)
-                                        .setBlockLimit(2048));
+        db = new CassandraRepository.Builder(cluster, 512).setRepositoryDescription(new DfsRepositoryDescription("test")).build();
+        
         db.getObjectDatabase().getReaderOptions().setStreamFileThreshold(512);
         
         DfsBlockCache.reconfigure(new DfsBlockCacheConfig()
-                        .setBlockSize(512)
-                        .setBlockLimit(2048));
+            .setBlockSize(512)
+            .setBlockLimit(2048));
         
         byte[] data = new TestRng(JGitTestUtil.getName()).nextBytes(8192);
         DfsInserter ins = (DfsInserter) db.newObjectInserter();

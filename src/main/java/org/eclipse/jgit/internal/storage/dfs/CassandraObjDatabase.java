@@ -27,6 +27,7 @@ import static com.datastax.driver.core.querybuilder.QueryBuilder.bindMarker;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.insertInto;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.select;
+import static com.datastax.driver.core.querybuilder.QueryBuilder.update;
 
 public class CassandraObjDatabase extends DfsObjDatabase {
     
@@ -75,7 +76,11 @@ public class CassandraObjDatabase extends DfsObjDatabase {
                 .value("source", bindMarker("source"))
                 .value("lmd", bindMarker("lmd"))
                 .toString());
-        
+        session.prepare(
+            insertInto("git_store", "project_description")
+                .value("name", bindMarker("name"))
+            .value("description", bindMarker("description")).toString());
+        session.prepare(select("description").from("git_store", "project_description").where(eq("name", bindMarker("name"))).toString());
     }
     
     public int getBlockSize() {
