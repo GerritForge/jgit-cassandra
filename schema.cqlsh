@@ -4,5 +4,4 @@ CREATE TABLE git_store.packs(id UUID, ext TEXT, offset BIGINT, value BLOB, PRIMA
 
 CREATE TABLE git_store.pack_list(name TEXT, id UUID, ext TEXT, size BIGINT, source TEXT, lmd BIGINT, PRIMARY KEY (name, id, ext));
 
-
 CREATE TABLE git_store.project_description(name TEXT, description TEXT, PRIMARY KEY(name));
