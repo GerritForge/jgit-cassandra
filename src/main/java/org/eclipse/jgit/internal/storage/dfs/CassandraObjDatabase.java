@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.eclipse.jgit.internal.storage.pack.PackExt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.PreparedStatement;
@@ -29,6 +31,8 @@ import static com.datastax.driver.core.querybuilder.QueryBuilder.insertInto;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.select;
 
 public class CassandraObjDatabase extends DfsObjDatabase {
+    
+    private static final Logger log = LoggerFactory.getLogger(CassandraObjDatabase.class);
     
     final Session session;
     final int blockSize;
@@ -92,15 +96,18 @@ public class CassandraObjDatabase extends DfsObjDatabase {
     
     @Override
     protected void commitPackImpl(Collection<DfsPackDescription> desc, Collection<DfsPackDescription> replace) throws IOException {
-        String repoName = getRepository().getDescription().getRepositoryName();
         BatchStatement batch = new BatchStatement();
         for (DfsPackDescription packDescription : desc) {
             CassandraPack cassandraPack = (CassandraPack) packDescription;
+            log.info("[PACK-CASS] repoName=[{}] id=[{}] source=[{}]",
+                cassandraPack.getRepositoryDescription().getRepositoryName()
+                , cassandraPack.getId(),
+                cassandraPack.getPackSource());
             for (PackExt ext : PackExt.values()) {
                 long size = cassandraPack.getFileSize(ext);
                 if (size != 0) {
                     batch.add(insertToPackList.bind()
-                        .setString("name", repoName)
+                        .setString("name", cassandraPack.getRepositoryDescription().getRepositoryName())
                         .setUUID("id", cassandraPack.getId())
                         .setString("ext", ext.getExtension())
                         .setLong("size", size)
@@ -120,8 +127,11 @@ public class CassandraObjDatabase extends DfsObjDatabase {
     
     @Override
     protected List<DfsPackDescription> listPacks() throws IOException {
-        
-        //        this.getCurrentPackList()
+        if (getRepository() == null ||
+            getRepository().getDescription() == null ||
+            getRepository().getDescription().getRepositoryName() == null) {
+            return new ArrayList<>();
+        }
         List<DfsPackDescription> packList = new ArrayList<>();
         ResultSet packListRst = session.execute(readPackList.bind().setString("name", getRepository().getDescription().getRepositoryName()));
         if (!packListRst.isExhausted()) {
