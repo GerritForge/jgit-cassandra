@@ -49,8 +49,12 @@ public class CassandraInserterTest {
     @Before
     public void setup() throws IOException {
         cluster = cassandraCQLUnit.getCluster();
-        //cluster = Cluster.builder().addContactPoint("127.0.0.1").withClusterName("git_store").build();
-        db = (new CassandraRepository.Builder(cluster, 1024)).setRepositoryDescription(new DfsRepositoryDescription("test")).build();
+        ClusterConfig config = new ClusterConfig();
+        config.setClusterName(cluster.getClusterName());
+        config.setContactPoints(new String[]{"localhost"});
+        config.setPort(9142);
+        CassandraCluster cassandraCluster = new CassandraCluster(config);
+        db = (new CassandraRepository.Builder(cassandraCluster, 1024)).setRepositoryDescription(new DfsRepositoryDescription("test")).build();
     }
     
     @Test
@@ -81,7 +85,13 @@ public class CassandraInserterTest {
     
     @Test
     public void testReadFromInserterLargerObjects() throws IOException {
-        db = new CassandraRepository.Builder(cluster, 512).setRepositoryDescription(new DfsRepositoryDescription("test")).build();
+        cluster = cassandraCQLUnit.getCluster();
+        ClusterConfig config = new ClusterConfig();
+        config.setClusterName(cluster.getClusterName());
+        config.setContactPoints(new String[]{"localhost"});
+        config.setPort(9142);
+        CassandraCluster cassandraCluster = new CassandraCluster(config);
+        db = new CassandraRepository.Builder(cassandraCluster, 512).setRepositoryDescription(new DfsRepositoryDescription("test")).build();
         
         db.getObjectDatabase().getReaderOptions().setStreamFileThreshold(512);
         
