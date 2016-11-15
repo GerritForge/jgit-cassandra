@@ -7,7 +7,7 @@
     <groupId>com.gerritforge</groupId>
     <artifactId>com.gerritforge.jgit.storage.cassandra</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
 
     <name>JGit - Cassandra Storage</name>
 
@@ -19,7 +19,7 @@
         <bundle-manifest>${project.build.directory}/META-INF/MANIFEST.MF</bundle-manifest>
 
         <args4j-version>2.0.15</args4j-version>
-        <cassandra-driver-version>3.1.1</cassandra-driver-version>
+        <cassandra-driver-version>3.2.0-SNAPSHOT</cassandra-driver-version>
         <cassandra-unit-version>3.0.0.1</cassandra-unit-version>
         <jgit-version>4.6.0-SNAPSHOT</jgit-version>
         <junit-version>4.12</junit-version>
@@ -96,6 +96,14 @@
                                     <pattern>com.google.common</pattern>
                                     <shadedPattern>com.shaded.google.common</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>com.datastax.driver</pattern>
+                                    <shadedPattern>com.shaded.datastax.driver</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.cassandra</pattern>
+                                    <shadedPattern>org.shaded.apache.cassandra</shadedPattern>
+                                </relocation>
                             </relocations>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
@@ -131,6 +139,7 @@
                 <groupId>com.datastax.cassandra</groupId>
                 <artifactId>cassandra-driver-core</artifactId>
                 <version>${cassandra-driver-version}</version>
+                <classifier>shaded</classifier>
                 <exclusions>
                     <exclusion>
                         <groupId>com.google.guava</groupId>
@@ -197,6 +206,7 @@
         <dependency>
             <groupId>com.datastax.cassandra</groupId>
             <artifactId>cassandra-driver-core</artifactId>
+            <classifier>shaded</classifier>
         </dependency>
 
         <dependency>
