@@ -28,11 +28,11 @@ public class CassandraRepository extends DfsRepository {
     
     public static class Builder extends DfsRepositoryBuilder<Builder, CassandraRepository> {
         
-        private final Cluster cluster;
+        private final CassandraCluster cassandraCluster;
         private final int blockSize;
         
-        public Builder(Cluster cluster, int blockSize) {
-            this.cluster = cluster;
+        public Builder(CassandraCluster cassandraCluster, int blockSize) {
+            this.cassandraCluster = cassandraCluster;
             this.blockSize = blockSize;
             
         }
@@ -50,7 +50,7 @@ public class CassandraRepository extends DfsRepository {
     
     protected CassandraRepository(Builder builder, int blockSize) {
         super(builder);
-        this.cassandraObjDatabase = new CassandraObjDatabase(builder.cluster.newSession(), this, new DfsReaderOptions(), blockSize);
+        this.cassandraObjDatabase = new CassandraObjDatabase(builder.cassandraCluster.getCluster().newSession(), this, new DfsReaderOptions(), blockSize);
         this.refdb = new MemRefDatabase();
     }
     
