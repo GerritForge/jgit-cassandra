@@ -117,6 +117,18 @@ public class CassandraInserterTest {
     }
     
     @Test
+    public  void testInsertReadLargeObject() throws IOException {
+        byte[] data = new TestRng(JGitTestUtil.getName()).nextBytes(104857600);
+        DfsInserter ins = (DfsInserter) db.newObjectInserter();
+        ObjectId id1 = ins.insert(Constants.OBJ_BLOB, data);
+        ins.flush();
+        assertEquals(1, db.getObjectDatabase().listPacks().size());
+        ObjectReader reader = ins.newReader();
+        assertSame(ins, reader.getCreatedFromInserter());
+        assertTrue(Arrays.equals(data, readStream(reader.open(id1))));
+    }
+    
+    @Test
     public void testReadFromFallback() throws IOException {
         ObjectInserter ins = db.newObjectInserter();
         ObjectId id1 = ins.insert(Constants.OBJ_BLOB, Constants.encode("foo"));
