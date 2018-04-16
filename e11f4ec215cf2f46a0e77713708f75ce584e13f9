@@ -2,6 +2,126 @@
   "comments": [
     {
       "key": {
+        "uuid": "155435a0_1a3d6ea3",
+        "filename": ".gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-16T23:56:26Z",
+      "side": 1,
+      "message": "is that a package ?",
+      "revId": "e11f4ec215cf2f46a0e77713708f75ce584e13f9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ce97466b_8ebd4670",
+        "filename": ".gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-16T23:56:26Z",
+      "side": 1,
+      "message": "what is this ?",
+      "revId": "e11f4ec215cf2f46a0e77713708f75ce584e13f9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba9496ba_8df46221",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-16T23:56:26Z",
+      "side": 1,
+      "message": "compare to latest jgit 4.11 these dependencies are pretty outdated.",
+      "range": {
+        "startLine": 21,
+        "startChar": 1,
+        "endLine": 26,
+        "endChar": 1
+      },
+      "revId": "e11f4ec215cf2f46a0e77713708f75ce584e13f9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cbfd041e_e3574c32",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-16T23:56:26Z",
+      "side": 1,
+      "message": "since JGit 4.6 we use Java 8",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 44
+      },
+      "revId": "e11f4ec215cf2f46a0e77713708f75ce584e13f9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bbea3205_48a41a5b",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-16T23:56:26Z",
+      "side": 1,
+      "message": "remove this except if you want to add a Tycho build for bundling as OSGi bundle",
+      "revId": "e11f4ec215cf2f46a0e77713708f75ce584e13f9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "539bfe53_d9b92e64",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-16T23:56:26Z",
+      "side": 1,
+      "message": "remove dead code",
+      "range": {
+        "startLine": 162,
+        "startChar": 0,
+        "endLine": 166,
+        "endChar": 32
+      },
+      "revId": "e11f4ec215cf2f46a0e77713708f75ce584e13f9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baa041b7_a13b35d0",
         "filename": "src/main/java/com/gerritforge/jgit/storage/cassandra/pgm/CassandraDaemon.java",
         "patchSetId": 1
@@ -13,6 +133,57 @@
       "writtenOn": "2016-10-23T22:24:30Z",
       "side": 1,
       "message": "Is this a copy\u0026paste of another JGit Java class?",
+      "revId": "e11f4ec215cf2f46a0e77713708f75ce584e13f9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aff1f0ce_251f0623",
+        "filename": "src/main/java/com/gerritforge/jgit/storage/cassandra/pgm/CassandraDaemon.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-16T23:56:26Z",
+      "side": 1,
+      "message": "how about license headers ?",
+      "revId": "e11f4ec215cf2f46a0e77713708f75ce584e13f9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ed287d3f_897c3fe9",
+        "filename": "src/main/java/com/gerritforge/jgit/storage/cassandra/pgm/CassandraDaemon.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-16T23:56:26Z",
+      "side": 1,
+      "message": "do you know that Google stopped working on Ketch ? Do you want to maintain it ?",
+      "revId": "e11f4ec215cf2f46a0e77713708f75ce584e13f9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6b21e651_fbfc026c",
+        "filename": "src/main/java/com/gerritforge/jgit/storage/cassandra/pgm/CassandraDaemon.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-16T23:56:26Z",
+      "side": 1,
+      "message": "remove all trailing whitespace",
       "revId": "e11f4ec215cf2f46a0e77713708f75ce584e13f9",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
