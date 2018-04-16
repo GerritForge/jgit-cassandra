@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cbf1fff7_48b01971",
+        "filename": "schema.cqlsh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-16T23:58:10Z",
+      "side": 1,
+      "message": "who is going to run this script ?",
+      "revId": "591fcae17c33044ecf95240284099de90902893e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6b26db1d_306f984d",
+        "filename": "src/main/java/com/gerritforge/jgit/storage/cassandra/CassandraObjDatabase.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-16T23:58:10Z",
+      "side": 1,
+      "message": "license ?",
+      "revId": "591fcae17c33044ecf95240284099de90902893e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bbac9d9c_5ea3350f",
+        "filename": "src/main/java/com/gerritforge/jgit/storage/cassandra/CassandraObjDatabase.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-16T23:58:10Z",
+      "side": 1,
+      "message": "cleanup trailing whitespace",
+      "revId": "591fcae17c33044ecf95240284099de90902893e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
