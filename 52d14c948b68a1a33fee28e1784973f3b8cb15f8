@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ecfd8ab_d4b0d28c",
+        "filename": "src/main/java/org/eclipse/jgit/internal/storage/dfs/CassandraObjDatabase.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-17T22:13:38Z",
+      "side": 1,
+      "message": "shorter: pack, that this is using cassandra is clear looking at the package and class name",
+      "range": {
+        "startLine": 102,
+        "startChar": 26,
+        "endLine": 102,
+        "endChar": 39
+      },
+      "revId": "52d14c948b68a1a33fee28e1784973f3b8cb15f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "24e37fd6_0d02e2ff",
+        "filename": "src/test/java/org/eclipse/jgit/internal/storage/dfs/SerialisationTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-17T22:13:38Z",
+      "side": 1,
+      "message": "simple: pack",
+      "range": {
+        "startLine": 21,
+        "startChar": 22,
+        "endLine": 21,
+        "endChar": 35
+      },
+      "revId": "52d14c948b68a1a33fee28e1784973f3b8cb15f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
