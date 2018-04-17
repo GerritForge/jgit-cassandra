@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6727d7a1_2cb0eccb",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-17T22:28:19Z",
+      "side": 1,
+      "message": "why do you jump from 1.0-SNAPSHOT to 1.0.2 ? Is this already good enough for a release (I don\u0027t think so yet) ?",
+      "revId": "d1d1f3d77cae7dd069967692ee710084f284fd6d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ea6d9a26_42cef228",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-17T22:28:19Z",
+      "side": 1,
+      "message": "please remove dead code",
+      "revId": "d1d1f3d77cae7dd069967692ee710084f284fd6d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
