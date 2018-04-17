@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a36e375_5d9090c2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-17T22:36:48Z",
+      "side": 1,
+      "message": "this is of no value, which concrete function are you adding why ?\n\nIt seems there are other unrelated changes here in this same commit",
+      "revId": "f87606014336fcfffd6fad56393d7c1afc22637b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
