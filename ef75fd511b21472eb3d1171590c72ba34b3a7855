@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04bdb44e_b3fcf175",
+        "filename": "src/main/java/com/gerritforge/jgit/storage/pgm/CassandraDaemon.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-17T00:05:09Z",
+      "side": 1,
+      "message": "cleanup trailing whitespace",
+      "revId": "ef75fd511b21472eb3d1171590c72ba34b3a7855",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
