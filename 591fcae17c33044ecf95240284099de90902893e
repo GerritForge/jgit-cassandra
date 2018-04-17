@@ -19,6 +19,40 @@
     },
     {
       "key": {
+        "uuid": "8e166851_bb4b0eac",
+        "filename": "schema.cqlsh",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-17T21:45:10Z",
+      "side": 1,
+      "message": "could you provide some more explanations for this schema, could be e.g. added to commit message ?",
+      "revId": "591fcae17c33044ecf95240284099de90902893e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c0487e17_04276b52",
+        "filename": "schema.cqlsh",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-17T21:45:10Z",
+      "side": 1,
+      "message": "this line seems to be a duplicate of line 5, does that make sense ?",
+      "revId": "591fcae17c33044ecf95240284099de90902893e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b26db1d_306f984d",
         "filename": "src/main/java/com/gerritforge/jgit/storage/cassandra/CassandraObjDatabase.java",
         "patchSetId": 1
