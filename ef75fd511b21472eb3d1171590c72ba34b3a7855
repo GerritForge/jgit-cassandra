@@ -2,6 +2,74 @@
   "comments": [
     {
       "key": {
+        "uuid": "53e1a060_ff2d86a8",
+        "filename": ".gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-17T21:49:44Z",
+      "side": 1,
+      "message": "at least some of these pattern seem rather platform specific, I\u0027d add such patterns to ~/.gitconfig",
+      "revId": "ef75fd511b21472eb3d1171590c72ba34b3a7855",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eef7ec25_c4f385d8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-17T21:49:44Z",
+      "side": 1,
+      "message": "this is a bit misleading, you are implementing at least a part of the domain model and add some tests. Please a bit more detail in commit messages, this helps a lot later when we start forgetting what you did why in the early days of this project",
+      "revId": "ef75fd511b21472eb3d1171590c72ba34b3a7855",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5923d6f5_73736d06",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-17T21:49:44Z",
+      "side": 1,
+      "message": "add paragraph how to run jgit-cassandra on top of this cassandra setup",
+      "revId": "ef75fd511b21472eb3d1171590c72ba34b3a7855",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a30733b_63f470aa",
+        "filename": "src/main/java/com/gerritforge/jgit/storage/CassandraRepository.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-17T21:49:44Z",
+      "side": 1,
+      "message": "how useful is a builder which does not really implement build() ?",
+      "revId": "ef75fd511b21472eb3d1171590c72ba34b3a7855",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "04bdb44e_b3fcf175",
         "filename": "src/main/java/com/gerritforge/jgit/storage/pgm/CassandraDaemon.java",
         "patchSetId": 1
