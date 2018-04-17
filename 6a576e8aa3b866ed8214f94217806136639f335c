@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b16c9290_d4676d7a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-17T22:30:25Z",
+      "side": 1,
+      "message": "it seems this change does more than this, I\u0027d recommend to split it up",
+      "revId": "6a576e8aa3b866ed8214f94217806136639f335c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
