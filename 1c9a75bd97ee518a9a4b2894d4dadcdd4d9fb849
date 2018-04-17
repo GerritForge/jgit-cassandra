@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "016af15a_b5a21b6f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-17T22:06:54Z",
+      "side": 1,
+      "message": "do one thing per commit, I\u0027d not mix pure move with another unrelated change in the same commit",
+      "revId": "1c9a75bd97ee518a9a4b2894d4dadcdd4d9fb849",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f13225c6_426b7de5",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2018-04-17T22:06:54Z",
+      "side": 1,
+      "message": "why a snapshot version ? Why not latest master ?",
+      "revId": "1c9a75bd97ee518a9a4b2894d4dadcdd4d9fb849",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
