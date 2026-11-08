@@ -9,7 +9,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.gerritforge.jgit.storage.cassandra;
+package com.gerritforge.jgit.storage;
 
 import com.datastax.driver.core.Session;
 import java.io.FileNotFoundException;
