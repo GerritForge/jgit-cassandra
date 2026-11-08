@@ -3,4 +3,3 @@ CREATE KEYSPACE git_store WITH REPLICATION = { 'class' : 'SimpleStrategy', 'repl
 CREATE TABLE git_store.pack( id UUID, offset DOUBLE, value BLOB, PRIMARY KEY ((id,offset)));
 
 CREATE TABLE git_store.pack_list( id TEXT, packs FROZEN<SET<FROZEN<TUPLE<UUID, double>>>>, PRIMARY KEY (id));
-CREATE TABLE git_store.pack_list( id TEXT, packs FROZEN<SET<FROZEN<TUPLE<UUID, double>>>>, PRIMARY KEY (id));

@@ -22,9 +22,15 @@ providing high availability and massive scalability for Git object storage.
 
 ## Getting Started
 
-*(Instructions for building the project with Maven/Gradle, configuring the Cassandra connection
-points, and integrating the DfsRepository into a JGit application will be added here as the
-implementation progresses.)*
+Have an instance of Cassandra running or use ccm Cassandra Cluster
+Manager https://github.com/pcmanus/ccm.
+
+Create one cassandra instance with latest version
+`ccm create jgit -v 3.0.9`
+populate 1 instance `ccm populate -n 1`
+start instance `ccm start`
+
+To access cqlsh via `ccm node1 cqlsh`
 
 ## Authors and Maintainers
 

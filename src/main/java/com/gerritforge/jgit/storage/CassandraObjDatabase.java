@@ -11,7 +11,9 @@
 
 package com.gerritforge.jgit.storage;
 
+import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
@@ -26,12 +28,50 @@ import org.eclipse.jgit.internal.storage.pack.PackExt;
 
 public class CassandraObjDatabase extends DfsObjDatabase {
 
+  //    CREATE TABLE git_store.pack( id UUID, offset DOUBLE, value BLOB, PRIMARY KEY ((id,offset)));
+
+  //    CREATE TABLE git_store.pack_list( id TEXT, packs FROZEN<SET<FROZEN<TUPLE<UUID, double>>>>,
+  // PRIMARY KEY (id));
+
   private final Session session;
+  private final PreparedStatement readPack;
+  private final PreparedStatement insertPack;
+  private final PreparedStatement readPackList;
+  private final PreparedStatement updatePackList;
 
   protected CassandraObjDatabase(
       Session session, DfsRepository repository, DfsReaderOptions options) {
     super(repository, options);
     this.session = session;
+    readPack =
+        session.prepare(
+            QueryBuilder.select("value")
+                .from("git_store", "pack")
+                .where(QueryBuilder.eq("id", QueryBuilder.bindMarker()))
+                .and(QueryBuilder.eq("offset", QueryBuilder.bindMarker()))
+                .toString());
+
+    insertPack =
+        session.prepare(
+            QueryBuilder.insertInto("git_store", "pack")
+                .value("id", QueryBuilder.bindMarker())
+                .value("offset", QueryBuilder.bindMarker())
+                .value("value", QueryBuilder.bindMarker())
+                .toString());
+
+    readPackList =
+        session.prepare(
+            QueryBuilder.select("packs")
+                .from("git_store", "pack_list")
+                .where(QueryBuilder.eq("id", QueryBuilder.bindMarker()))
+                .toString());
+
+    updatePackList =
+        session.prepare(
+            QueryBuilder.insertInto("git_store", "pack_list")
+                .value("id", QueryBuilder.bindMarker())
+                .value("packs", QueryBuilder.bindMarker())
+                .toString());
   }
 
   @Override
