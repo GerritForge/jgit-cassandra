@@ -7,7 +7,7 @@
     <groupId>com.gerritforge</groupId>
     <artifactId>com.gerritforge.jgit.storage.cassandra</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.9</version>
+    <version>1.0.10</version>
 
     <name>JGit - Cassandra Storage</name>
 

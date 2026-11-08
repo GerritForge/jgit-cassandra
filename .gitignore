@@ -27,3 +27,4 @@ build
 project/target
 project/project
 target/*
+/target/

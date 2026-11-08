@@ -185,7 +185,6 @@ public class CassandraInserterTest {
     }
     
     @Test
-    @Ignore
     public void testInserterIgnoresUnreachable() throws IOException {
         ObjectInserter ins = db.newObjectInserter();
         ObjectId fooId = ins.insert(Constants.OBJ_BLOB, Constants.encode("foo"));

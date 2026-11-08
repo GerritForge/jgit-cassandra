@@ -10,6 +10,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.eclipse.jgit.annotations.Nullable;
+import org.eclipse.jgit.internal.JGitText;
 import org.eclipse.jgit.lib.BatchRefUpdate;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectIdRef;
@@ -62,6 +64,11 @@ public class CassandraRepository extends DfsRepository {
     @Override
     public RefDatabase getRefDatabase() {
         return refdb;
+    }
+    
+    public void setGitwebDescription(@Nullable String description)
+        throws IOException {
+      return;
     }
     
     /**
@@ -255,4 +262,5 @@ public class CassandraRepository extends DfsRepository {
             }
         }
     }
+    
 }
