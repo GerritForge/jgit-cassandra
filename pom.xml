@@ -115,7 +115,7 @@
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
-                                        <Main-Class>com.gerritforge.jgit.storage.cassandra.pgm.Main</Main-Class>
+                                        <Main-Class>org.eclipse.jgit.internal.storage.dfs.pgm.Main</Main-Class>
                                         <Implementation-Title>JGit Cassandra Command Line Interface</Implementation-Title>
                                     </manifestEntries>
                                 </transformer>

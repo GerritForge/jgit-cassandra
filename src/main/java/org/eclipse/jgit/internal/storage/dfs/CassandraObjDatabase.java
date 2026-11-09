@@ -9,19 +9,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.gerritforge.jgit.storage.cassandra;
+package org.eclipse.jgit.internal.storage.dfs;
 
 import com.datastax.driver.core.Session;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import org.eclipse.jgit.internal.storage.dfs.DfsObjDatabase;
-import org.eclipse.jgit.internal.storage.dfs.DfsOutputStream;
-import org.eclipse.jgit.internal.storage.dfs.DfsPackDescription;
-import org.eclipse.jgit.internal.storage.dfs.DfsReaderOptions;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
-import org.eclipse.jgit.internal.storage.dfs.ReadableChannel;
+
 import org.eclipse.jgit.internal.storage.pack.PackExt;
 
 public class CassandraObjDatabase extends DfsObjDatabase {
