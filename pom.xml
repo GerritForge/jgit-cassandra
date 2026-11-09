@@ -7,7 +7,7 @@
     <groupId>com.gerritforge</groupId>
     <artifactId>com.gerritforge.jgit.storage.cassandra</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.10</version>
 
     <name>JGit - Cassandra Storage</name>
 
@@ -19,10 +19,12 @@
         <bundle-manifest>${project.build.directory}/META-INF/MANIFEST.MF</bundle-manifest>
 
         <args4j-version>2.0.15</args4j-version>
-        <cassandra-driver-version>3.1.1</cassandra-driver-version>
-        <jgit-version>4.5.0.201609210915-r</jgit-version>
+        <cassandra-driver-version>3.2.0</cassandra-driver-version>
+        <cassandra-unit-version>3.0.0.1</cassandra-unit-version>
+        <jgit-version>4.9.0.201710071750-r</jgit-version>
         <junit-version>4.12</junit-version>
-        <slf4j-version>1.7.2</slf4j-version>
+        <gson-version>2.8.0</gson-version>
+        <guava-version>18.0</guava-version>
     </properties>
 
     <build>
@@ -39,8 +41,8 @@
                     <version>3.5.1</version>
                     <configuration>
                         <encoding>UTF-8</encoding>
-                        <source>1.7</source>
-                        <target>1.7</target>
+                        <source>1.8</source>
+                        <target>1.8</target>
                     </configuration>
                 </plugin>
 
@@ -77,28 +79,6 @@
                 <artifactId>maven-clean-plugin</artifactId>
             </plugin>
 
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-antrun-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>translate-source-qualifier</id>-->
-                        <!--<phase>generate-resources</phase>-->
-                        <!--<configuration>-->
-                            <!--<target>-->
-                                <!--<copy file="META-INF/SOURCE-MANIFEST.MF" tofile="${source-bundle-manifest}" overwrite="true"/>-->
-                                <!--<replace file="${source-bundle-manifest}">-->
-                                    <!--<replacefilter token=".qualifier" value=".${maven.build.timestamp}"/>-->
-                                <!--</replace>-->
-                            <!--</target>-->
-                        <!--</configuration>-->
-                        <!--<goals>-->
-                            <!--<goal>run</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -109,9 +89,28 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>jgit-cs</finalName>
+                            <!--<finalName>jgit-cs</finalName>-->
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.google.common</pattern>
+                                    <shadedPattern>com.shaded.google.common</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.datastax.driver</pattern>
+                                    <shadedPattern>com.shaded.datastax.driver</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.cassandra</pattern>
+                                    <shadedPattern>org.shaded.apache.cassandra</shadedPattern>
+                                </relocation>
+                            </relocations>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+                                    <resource>META-INF/*.SF</resource>
+                                    <resource>META-INF/*.DSA</resource>
+                                    <resource>META-INF/*.RSA</resource>
+                                </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
@@ -139,18 +138,52 @@
                 <groupId>com.datastax.cassandra</groupId>
                 <artifactId>cassandra-driver-core</artifactId>
                 <version>${cassandra-driver-version}</version>
+                <classifier>shaded</classifier>
             </dependency>
 
             <dependency>
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit</artifactId>
                 <version>${jgit-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit.pgm</artifactId>
                 <version>${jgit-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${gson-version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>org.eclipse.jgit</groupId>
+                <artifactId>org.eclipse.jgit.junit</artifactId>
+                <version>${jgit-version}</version>
+                <scope>test</scope>
             </dependency>
 
             <dependency>
@@ -159,11 +192,13 @@
                 <version>${junit-version}</version>
                 <scope>test</scope>
             </dependency>
-            <!--<dependency>-->
-            <!--<groupId>org.slf4j</groupId>-->
-            <!--<artifactId>slf4j-nop</artifactId>-->
-            <!--<version>${slf4j-version}</version>-->
-            <!--</dependency>-->
+
+            <dependency>
+                <groupId>org.cassandraunit</groupId>
+                <artifactId>cassandra-unit</artifactId>
+                <version>${cassandra-unit-version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -176,6 +211,7 @@
         <dependency>
             <groupId>com.datastax.cassandra</groupId>
             <artifactId>cassandra-driver-core</artifactId>
+            <classifier>shaded</classifier>
         </dependency>
 
         <dependency>
@@ -189,8 +225,30 @@
         </dependency>
 
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit.junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.cassandraunit</groupId>
+            <artifactId>cassandra-unit</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
